@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9 кю — 49 дней до оранжевого пояса с синей нашивкой</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; font-size: 15px; line-height: 1.6; }
+.container { max-width: 920px; margin: 0 auto; padding: 24px 16px 60px; }
+h1 { font-size: 26px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+.lead { color: #555; font-size: 14px; margin-bottom: 28px; }
+.nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; position: sticky; top: 0; background: #f5f4f0; padding: 8px 0; z-index: 10; }
+.nav a { padding: 6px 14px; border-radius: 20px; background: #fff; border: 1px solid #ddd; text-decoration: none; color: #333; font-size: 13px; font-weight: 500; transition: all .15s; }
+.nav a:hover, .nav a.active { background: #e85d1e; color: #fff; border-color: #e85d1e; }
+.section { display: none; }
+.section.active { display: block; }
+h2 { font-size: 20px; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e85d1e; color: #1a1a1a; }
+h3 { font-size: 16px; font-weight: 600; margin: 22px 0 10px; color: #333; }
+h4 { font-size: 14px; font-weight: 600; margin: 12px 0 6px; color: #444; }
+p { margin-bottom: 10px; }
+ul, ol { padding-left: 20px; margin-bottom: 10px; }
+li { margin-bottom: 4px; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-right: 4px; }
+.badge-orange { background: #fff3e0; color: #e65100; }
+.badge-blue { background: #e3f2fd; color: #1565c0; }
+.badge-green { background: #e8f5e9; color: #2e7d32; }
+.card { background: #fff; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; border: 1px solid #e8e8e8; }
+.card-orange { border-left: 4px solid #e85d1e; }
+.card-blue { border-left: 4px solid #1976d2; }
+.card-green { border-left: 4px solid #388e3c; }
+.card-purple { border-left: 4px solid #7b1fa2; }
+.week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 16px; }
+.day-cell { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 7px 4px; text-align: center; font-size: 11px; cursor: pointer; transition: all .15s; }
+.day-cell:hover { border-color: #e85d1e; background: #fff8f5; }
+.day-cell.done { background: #e8f5e9; border-color: #66bb6a; }
+.day-cell.rest { background: #f9f9f9; color: #aaa; cursor: default; }
+.day-cell .day-num { font-size: 15px; font-weight: 700; color: #e85d1e; display: block; }
+.day-cell.rest .day-num { color: #ccc; }
+.day-cell.done .day-num { color: #2e7d32; }
+.day-label { font-size: 10px; color: #888; line-height: 1.3; margin-top: 2px; }
+.week-label { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; margin: 14px 0 6px; }
+.table-wrap { overflow-x: auto; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #e85d1e; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; white-space: nowrap; }
+td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+tr:nth-child(even) td { background: #fafafa; }
+.tip-box { background: #fff3e0; border-radius: 10px; padding: 14px 16px; margin: 12px 0; border-left: 4px solid #e85d1e; font-size: 14px; }
+.tip-box strong { display: block; margin-bottom: 4px; color: #e65100; }
+.info-box { background: #e3f2fd; border-radius: 10px; padding: 14px 16px; margin: 12px 0; border-left: 4px solid #1976d2; font-size: 14px; }
+.info-box strong { display: block; margin-bottom: 4px; color: #1565c0; }
+/* Theory items */
+.theory-item { background: #fff; border-radius: 10px; padding: 0; margin-bottom: 12px; border: 1px solid #e8e8e8; overflow: hidden; }
+.theory-header { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; cursor: pointer; }
+.theory-header:hover { background: #fafafa; }
+.theory-chk { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #ddd; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all .2s; }
+.theory-chk.checked { background: #e85d1e; border-color: #e85d1e; color: #fff; }
+.theory-content { flex: 1; }
+.theory-content strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.theory-content .short { font-size: 13px; color: #666; }
+.theory-body { display: none; padding: 0 16px 14px 50px; border-top: 1px solid #f0f0f0; font-size: 13px; color: #444; line-height: 1.7; }
+.theory-body.open { display: block; }
+/* Video embed */
+.video-section { margin: 10px 0 4px; }
+.video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 8px; }
+.video-card { background: #1a1a2e; border-radius: 10px; overflow: hidden; }
+.video-thumb { position: relative; background: #111; aspect-ratio: 16/9; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.video-thumb img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
+.play-btn { position: absolute; width: 44px; height: 44px; background: rgba(255,0,0,0.88); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.play-btn::after { content: '▶'; color: #fff; font-size: 16px; margin-left: 3px; }
+.video-card .vc-title { padding: 8px 10px; font-size: 12px; color: #ddd; line-height: 1.4; }
+.video-link-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.yt-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #cc0000; color: #fff; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; }
+.yt-link::before { content: '▶'; }
+.yt-link:hover { background: #990000; }
+/* pushup */
+.pushup-tracker { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8e8e8; margin-bottom: 16px; }
+.week-pushup { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin: 8px 0 14px; }
+.pu-day { background: #f5f5f5; border-radius: 8px; padding: 7px 4px; text-align: center; font-size: 11px; }
+.pu-day strong { display: block; font-size: 14px; color: #e85d1e; font-weight: 700; }
+.pu-day span { color: #888; }
+/* Exercise card */
+.exercise-card { background: #fff; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; border: 1px solid #e8e8e8; }
+.exercise-card.glute-card { border-left: 4px solid #7b1fa2; }
+.exercise-card.split-card { border-left: 4px solid #388e3c; }
+.exercise-card h4 { margin-top: 0; color: #1a1a1a; font-size: 14px; text-transform: none; }
+.exercise-card .sets { font-size: 13px; color: #e85d1e; font-weight: 600; margin: 3px 0 5px; }
+.exercise-card .desc { font-size: 13px; color: #666; line-height: 1.6; }
+.phase-label { background: #e85d1e; color: #fff; border-radius: 8px; padding: 2px 10px; font-size: 12px; font-weight: 700; display: inline-block; margin-bottom: 8px; }
+.checkmark-list { list-style: none; padding: 0; }
+.checkmark-list li { padding: 4px 0 4px 24px; position: relative; font-size: 14px; }
+.checkmark-list li::before { content: '✓'; position: absolute; left: 0; color: #2e7d32; font-weight: 700; }
+.jp { font-style: italic; color: #888; font-size: 12px; }
+.dodjo-kun { counter-reset: dk; }
+.dodjo-kun li { counter-increment: dk; list-style: none; padding: 8px 0 8px 32px; position: relative; border-bottom: 1px solid #f0f0f0; font-size: 14px; line-height: 1.6; }
+.dodjo-kun li::before { content: counter(dk); position: absolute; left: 0; top: 8px; width: 22px; height: 22px; background: #e85d1e; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.dodjo-kun li:last-child { border-bottom: none; }
+.jp-line { font-size: 12px; color: #888; font-style: italic; display: block; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🥋 9 кю — Оранжевый + Синяя нашивка</h1>
+  <p class="lead">49 дней · Школа Мужества (pobeditel.by) · WKO Беларусь · Самостоятельные тренировки</p>
+
+  <nav class="nav">
+    <a href="#" class="active" onclick="show('plan',this)">📅 49 дней</a>
+    <a href="#" onclick="show('theory',this)">📖 Теория</a>
+    <a href="#" onclick="show('technique',this)">🥋 Техника + видео</a>
+    <a href="#" onclick="show('pushups',this)">💪 Отжимания</a>
+    <a href="#" onclick="show('dumbbells',this)">🏋️ Гантели</a>
+    <a href="#" onclick="show('splits',this)">🧘 Шпагаты</a>
+    <a href="#" onclick="show('glutes',this)">🍑 Ягодицы</a>
+  </nav>
+
+  <!-- ===== ПЛАН ===== -->
+  <div id="plan" class="section active">
+    <h2>📅 49-дневный план тренировок</h2>
+    <div class="tip-box">
+      <strong>Принцип 7 недель</strong>
+      Фаза 1 (нед. 1–2): техника с нуля + начало отжиманий. Фаза 2 (нед. 3–5): закрепление + рост кондиции. Фаза 3 (нед. 6–7): шлифовка + пик формы. Кликайте на день — отмечайте выполненное.
+    </div>
+    <div id="calendar"></div>
+    <h3>Структура тренировочного дня (60–75 мин)</h3>
+    <div class="card card-blue">
+      <h4>Разминка — 10 мин</h4>
+      <ul>
+        <li>Бег на месте / прыжки — 2 мин</li>
+        <li>Суставная гимнастика: шея → плечи → локти → запястья → поясница → бёдра → колени → голеностопы</li>
+        <li>Махи ногами вперёд и в стороны (15 × каждой ногой)</li>
+        <li>3 × 10 вращений бёдрами</li>
+      </ul>
+    </div>
+    <div class="card card-orange">
+      <h4>Основная часть — 45 мин</h4>
+      <ul>
+        <li><strong>Кихон</strong> — 15 мин: стойки + удары + блоки в зеркало, счёт вслух на японском</li>
+        <li><strong>Рэнраку № 1</strong> (гяку-цуки + маэ-гэри тюдан) — 5 × 10 связок</li>
+        <li><strong>Ката Тайкёку соно ни</strong> — 5–10 повторений</li>
+        <li><strong>Кондиция</strong>: маэ-гэри тюдан из дзэнкуцу-дати на месте (нарастающий норматив до 4 мин)</li>
+        <li><strong>Отжимания</strong> по протоколу раздела «Отжимания»</li>
+        <li><strong>Пресс</strong> — 3 × 10–30 подъёмов туловища (норматив экзамена: 30 раз)</li>
+      </ul>
+    </div>
+    <div class="card card-green">
+      <h4>Заминка — 10 мин</h4>
+      <ul>
+        <li>Растяжка бедра + ягодиц лёжа — 60 сек × каждая сторона</li>
+        <li>Продольный шпагат: 2 × 90 сек каждой ногой</li>
+        <li>Поперечный шпагат: 2 × 90 сек</li>
+        <li>Баттерфляй / поза голубя — 2 × 60 сек</li>
+      </ul>
+    </div>
+    <h3>Расписание по неделям</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Нед.</th><th>Пн / Ср / Пт — Карате</th><th>Вт / Чт — Гантели + растяжка</th><th>Сб — Длинная</th><th>Вс — Отдых / МФР</th></tr>
+        <tr><td><span class="badge badge-orange">1–2</span></td><td>Стойки 10+9 кю, ката Тайкёку 1+2. Кондиция 2 мин. Отжимания: с колен 5×5</td><td>Плечи + бицепс + предплечья + растяжка 30 мин</td><td>Полная программа + кондиция 2.5 мин</td><td>МФР ролл, лёгкая растяжка</td></tr>
+        <tr><td><span class="badge badge-blue">3–5</span></td><td>Все стойки + рэнраку, кондиция 3 мин. Отжимания: полные 3×5–10</td><td>Трицепс + гантели + шпагат 35 мин</td><td>Ката ×10 + иппон-кумитэ с зеркалом + кондиция 3.5 мин</td><td>МФР + пассивный шпагат 20 мин</td></tr>
+        <tr><td><span class="badge badge-green">6–7</span></td><td>Полная программа 9 кю. Кондиция 4 мин. Отжимания на сэйкэн 3×10+</td><td>Комплекс гантелей + растяжка до отказа</td><td>Имитация экзамена: теория → кихон → ката → кондиция → кумитэ</td><td>Легко: МФР + медитация сэйдза</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== ТЕОРИЯ ===== -->
+  <div id="theory" class="section">
+    <h2>📖 Теория для экзамена 9 кю</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:16px;">Источники: pobeditel.by, wko.by. Нажмите на пункт — раскройте / отметьте как выученный.</p>
+
+    <h3>🏫 История и основы</h3>
+
+    <div class="theory-item">
+      <div class="theory-header" onclick="toggleT(this)">
+        <div class="theory-chk">✓</div>
+        <div class="theory-content">
+          <strong>Основатель Кёкусинкай и история стиля</strong>
+          <span class="short">Масутацу Ояма, 1923–1994. IKO основана в 1964.</span>
+        </div>
+      </div>
+      <div class="theory-body">
+        <p><strong>Масутацу (Мас) Ояма</strong> — корейско-японский мастер боевых искусств (1923–1994). Изучал карате у Гигин Фунакоши и Со Ней Чу. Несколько лет тренировался в уединении в горах Кимбо и Миацугаяма, выживая в экстремальных условиях. Снискал мировую известность боями с быками голыми руками.</p>
+        <p>В <strong>1964 году</strong> основал в Токио <strong>IKO — Международную Каратэ Организацию</strong> и стиль Кёкусинкай. Высшей мастерской степенью 10-го дана обладал только он один.</p>
+        <p>После смерти Оямы организация разделилась. Школа Мужества и wko.by входят в <strong>WKO (World Karate Organization)</strong> — одну из ведущих ветвей Кёкусинкай.</p>
+        <div class="video-link-row">
+          <a class="yt-link" href="https://www.youtube.com/results?search_query=Mas+Oyama+kyokushin+history" target="_blank">История Мас Оямы</a>
+          <a class="yt-link" href="https://www.youtube.com/results?search_query=Kyokushin+karate+history+documentary" target="_blank">История Кёкусинкай</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="theory-item">
+      <div class="theory-header" onclick="toggleT(this)">
+        <div class="theory-chk">✓</div>
+        <div class="theory-content">
+          <strong>Название и значение «Кёкусинкай»</strong>
+          <span class="short">Кёку — предел, Син — истина, Кай — союз. Общество искателей предельной истины.</span>
+        </div>
+      </div>
+      <div class="theory-body">
+        <p><strong>Кёкусинкай</strong> (極真会) расшифровывается:</p>
+        <ul>
+          <li><strong>Кёку (極)</strong> — предел, высший, абсолютный</li>
+          <li><strong>Син (真)</strong> — истина, правда, искренность</li>
+          <li><strong>Кай (会)</strong> — союз, общество, объединение</li>
+        </ul>
+        <p>Полный перевод: <em>«Общество искателей предельной (абсолютной) истины»</em> или «Общество искателей предельной искренности».</p>
+      </div>
+    </div>
+
+    <div class="theory-item">
+      <div class="theory-header" onclick="toggleT(this)">
+        <div class="theory-chk">✓</div>
+        <div class="theory-content">
+          <strong>Значения слов: карате, карате-до, додзё, Осу</strong>
+          <span class="short">Пустая рука + путь. Осу — настойчивость, терпение.</span>
+        </div>
+      </div>
+      <div class="theory-body">
+        <p><strong>Карате</strong> (空手) = «пустая рука»: кара (空) — пустой, тэ (手) — рука.</p>
+        <p><strong>Карате-до</strong> (空手道) = «путь пустой руки»: до (道) — путь, дорога. Добавляет философское, духовное измерение к боевому искусству.</p>
+        <p><strong>Додзё</strong> (道場) = «место пути», место для занятий воинскими искусствами.</p>
+        <p><strong>Осу (Oss)</strong> — самое распространённое слово в Кёкусинкай. По версии pobeditel.by означает:</p>
+        <ul>
+          <li>Взаимное приветствие</li>
+          <li>Свидетельство понимания и согласия («да», «я понимаю»)</li>
+          <li>Один из способов поднятия боевого духа (крик Киай)</li>
+          <li>Признание умения партнёра в кумитэ</li>
+        </ul>
+        <p>Дух Осу — это настойчивость и упорство. Японская пословица «Ishi no ue ni san nen» («Три года на скале») символизирует этот дух — потребность упорства во всём.</p>
+        <p>Используется: при входе и выходе из додзё; вместо «привет»; вместо «да» или «понял» в зале; при выполнении кихона.</p>
+      </div>
+    </div>
+
+    <div class="theory-item">
+      <div class="theory-header" onclick="toggleT(this)">
+        <div class="theory-chk">✓</div>
+        <div class="theory-content">
+          <strong>Символ Канку</strong>
+          <span class="short">Смотреть на небо сквозь сложенные руки. Центр = бесконечность.</span>
+        </div>
+      </div>
+      <div class="theory-body">
+        <p>Канку — символ Кёкусинкай. Образуется когда поднимают руки вверх, соединяют большие и указательные пальцы в треугольник и смотрят на небо сквозь это «окно».</p>
+        <p>Центр треугольника символизирует бесконечность духа и Вселенной. Это движение — начало ката «Канку-дай» (изучается на старших поясах).</p>
+      </div>
+    </div>
+
+    <h3>📜 Додзё-кун — все 7 строк (источник: pobeditel.by)</h3>
+    <div class="info-box">
+      <strong>Важно для экзамена</strong>
+      На каждом уровне спрашивают конкретную строку: нашивка 1 — строка 1, нашивка 2 — строки 1-2, и т.д. На 9 кю нужно знать ВСЕ 7 строк. Произносится в конце каждой тренировки в позиции сэйдза (сидя на коленях).
+    </div>
+    <div class="card card-orange">
+      <ul class="dodjo-kun">
+        <li>
+          Мы будем тренировать наши сердца и тела для достижения твёрдого и непоколебимого духа.
+          <span class="jp-line">Хитоцу, варэ варэ ва синсин о рэнма си, какко фубацу но синги о кивамэру кото.</span>
+        </li>
+        <li>
+          Мы будем следовать истинному смыслу воинского пути, чтобы наши чувства всё время были наготове.
+          <span class="jp-line">Хитоцу, варэ варэ ва бу но синдзуй о кивамэ, ки ни хасси, кан ни бин нару кото.</span>
+        </li>
+        <li>
+          С истинным упорством мы будем стремиться к преодолению своего эгоизма.
+          <span class="jp-line">Хитоцу, варэ варэ ва сидзицу гокэн о мотте, кокки но сэйсин о ёосэй суру кото.</span>
+        </li>
+        <li>
+          Мы будем соблюдать правила этикета, уважения к старшим и воздерживаться от насилия.
+          <span class="jp-line">Хитоцу, варэ варэ ва рэйсэцу о омондзи, тёдзё о кэйси, собо но фурумаи о цуцусиму кото.</span>
+        </li>
+        <li>
+          Мы будем следовать нашим богам и никогда не забудем истинную добродетель скромности.
+          <span class="jp-line">Хитоцу, варэ варэ ва синбуцу о тотоби, кэндзо но битоку о васурэзару кото.</span>
+        </li>
+        <li>
+          Мы будем стремиться к мудрости и силе, не ведая других желаний.
+          <span class="jp-line">Хитоцу, варэ варэ ва тисэй то тайрёку то о кодзё сасэ, кото ни нодзондэ аямататадзару кото.</span>
+        </li>
+        <li>
+          Всю нашу жизнь, через изучение карате, мы будем стремиться выполнить истинное предназначение пути — Кёкусинкай.
+          <span class="jp-line">Хитоцу, варэ варэ ва сёгай но сюгё о каратэ но мити ни цудзи, Кёкусин но мити о манъё суру кото.</span>
+        </li>
+      </ul>
+    </div>
+    <div class="video-link-row">
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=Dodjo+kun+kyokushin+произношение" target="_blank">Произношение Додзё-кун</a>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=kyokushin+dojo+kun+recitation" target="_blank">Dodjo-kun recitation (EN)</a>
+    </div>
+
+    <h3>🇯🇵 Команды, счёт, этикет</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Слово / команда</th><th>Значение</th><th>Когда применяется</th></tr>
+        <tr><td><strong>Осу!</strong></td><td>Приветствие / согласие / боевой дух</td><td>Вход/выход из додзё, ответ тренеру, кихон</td></tr>
+        <tr><td><strong>Рэй</strong></td><td>Поклон</td><td>Начало/конец тренировки, перед/после кумитэ</td></tr>
+        <tr><td><strong>Ёй</strong></td><td>Приготовиться</td><td>Команда к готовности</td></tr>
+        <tr><td><strong>Хадзимэ</strong></td><td>Начать</td><td>Старт упражнения или боя</td></tr>
+        <tr><td><strong>Ямэ</strong></td><td>Стоп, закончить</td><td>Остановка по команде</td></tr>
+        <tr><td><strong>Маватэ</strong></td><td>Повернуться</td><td>При выполнении кихона в шеренге</td></tr>
+        <tr><td><strong>Камаэтэ</strong></td><td>Принять боевую стойку</td><td>Перед кумитэ</td></tr>
+        <tr><td><strong>Миги</strong></td><td>Правый / правая сторона</td><td>«Миги санчин-дати, ёй — Камаэтэ!»</td></tr>
+        <tr><td><strong>Хидари</strong></td><td>Левый / левая сторона</td><td>«Хидари санчин-дати, ёй — Камаэтэ!»</td></tr>
+        <tr><td><strong>Киай</strong></td><td>Боевой крик</td><td>В конце ката и при мощных ударах</td></tr>
+        <tr><td><strong>Сэйдза</strong></td><td>Сидеть на коленях (поза медитации)</td><td>Перед Додзё-кун</td></tr>
+        <tr><td><strong>Мокусо</strong></td><td>Медитация</td><td>В позиции сэйдза в начале/конце</td></tr>
+        <tr><td><strong>Сэнсэй</strong></td><td>Учитель</td><td>Обращение к тренеру</td></tr>
+        <tr><td><strong>Сэмпай</strong></td><td>Старший ученик</td><td>Обращение к старшему</td></tr>
+      </table>
+    </div>
+    <h4>Счёт до 10 (японский)</h4>
+    <div class="table-wrap">
+      <table>
+        <tr><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr>
+        <tr><td>Ити</td><td>Ни</td><td>Сан</td><td>Си (Ён)</td><td>Го</td><td>Року</td><td>Сити</td><td>Хати</td><td>Ку</td><td>Дзю</td></tr>
+      </table>
+    </div>
+
+    <h3>📊 Физические нормативы 9 кю (по pobeditel.by / WKO)</h3>
+    <div class="card card-orange">
+      <ul class="checkmark-list">
+        <li><strong>Кондиция (выносливость)</strong>: маэ-гэри тюдан из дзэнкуцу-дати на месте — <strong>4 минуты</strong></li>
+        <li><strong>Подъёмы туловища (пресс)</strong> — <strong>30 раз</strong></li>
+        <li><strong>Отжимания на кулаках (сэйкэн)</strong> — норматив WKO для 9 кю: <strong>20–35 раз</strong> (уточняйте у тренера конкретную цифру для вашей группы)</li>
+        <li><strong>Дзию кумитэ</strong> — <strong>4 поединка по 1 минуте</strong></li>
+        <li><strong>Гибкость</strong>: из положения сед ноги врозь — коснуться головой пола</li>
+      </ul>
+    </div>
+
+    <h3>⚠️ Этикет додзё — Школа Мужества</h3>
+    <div class="card">
+      <ul>
+        <li>Вход в зал — поклон (рэй), «Осу»</li>
+        <li>Выход из зала — поклон, «Осу»</li>
+        <li><strong>При опоздании</strong>: остановиться у входа, поклониться, занять позицию сэйдза — ждать разрешения тренера войти в шеренгу</li>
+        <li>Обращение к тренеру: <strong>«Сэнсэй»</strong></li>
+        <li>Обращение к старшему ученику: <strong>«Сэмпай»</strong></li>
+        <li>Ногти должны быть подстрижены, волосы убраны, доги чистое и аккуратное</li>
+        <li>Уметь правильно складывать доги и завязывать пояс</li>
+        <li>Кулаки во время кихона должны быть сжаты (до 5 кю включительно)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== ТЕХНИКА + ВИДЕО ===== -->
+  <div id="technique" class="section">
+    <h2>🥋 Техника 9 кю + видео</h2>
+    <div class="info-box">
+      <strong>Как пользоваться разделом</strong>
+      По каждой стойке, удару, блоку и кате — ссылки на YouTube. Ссылки открывают поиск — выбирайте видео с хорошим ракурсом (желательно канал IKO, Kyokushin World или японские додзё).
+    </div>
+
+    <h3>🦵 Стойки (9 кю) — новые к 10 кю</h3>
+
+    <div class="exercise-card">
+      <h4>Мусуби-дати (結び立)</h4>
+      <div class="sets">Стойка для медитации стоя</div>
+      <div class="desc">Пятки соединены, носки разведены наружу примерно на 45°. Руки вдоль тела, кулаки слегка сжаты. Прямая спина, взгляд прямо. Используется в начале/конце тренировки при поклоне и медитации мокусо.</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=musubi+dachi+kyokushin+стойка" target="_blank">Мусуби-дати</a>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <h4>Санчин-дати (三戦立) — стойка трёх точек</h4>
+      <div class="sets">Базовая силовая стойка 9 кю</div>
+      <div class="desc">Ноги на ширине плеч, носки слегка направлены внутрь (около 30°). Колени полусогнуты и напряжены, как будто «зажимают» что-то. Пятки на одной горизонтальной линии. Центр тяжести смещён вниз, ягодицы слегка подтянуты. Корпус напряжён (кимэ). В этой стойке выполняется ката Сантин-но-ката.</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=sanchin+dachi+kyokushin+tutorial" target="_blank">Санчин-дати техника</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=санчин+стойка+карате+объяснение" target="_blank">Санчин-дати по-русски</a>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <h4>Кокуцу-дати (後屈立) — задняя наклонная стойка</h4>
+      <div class="sets">Защитная / отходная стойка 9 кю</div>
+      <div class="desc"><strong>70% веса тела на задней ноге.</strong> Таз опущен вниз. Стопа задней ноги и колено повернуты наружу на 45°. Ступня передней ноги направлена носком строго вперёд. Расстояние между пяткой задней и носком передней ноги = 3 ступни. Колено передней ноги — над носком. Часто используется в связке с ути-укэ (блок изнутри).</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=kokutsu+dachi+kyokushin+tutorial" target="_blank">Кокуцу-дати</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=задняя+стойка+карате+кокуцу" target="_blank">Кокуцу-дати по-русски</a>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <strong>Стойки 10 кю (тоже нужно знать)</strong>
+      Фудо-дати, дзэнкуцу-дати, ёй-дати, хэйко-дати, ути-хатидзи-дати, камаэтэ-дати.
+      <div class="video-link-row" style="margin-top:8px">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=kyokushin+stances+all+10+kyu+basics" target="_blank">Все стойки 10 кю</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=дзенкуцу+дати+карате+техника" target="_blank">Дзэнкуцу-дати</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=fudo+dachi+kyokushin" target="_blank">Фудо-дати</a>
+      </div>
+    </div>
+
+    <h3>👊 Техника рук (9 кю)</h3>
+
+    <div class="exercise-card">
+      <h4>Сэйкэн аго-ути (正拳顎打)</h4>
+      <div class="sets">Прямой удар в подбородок (аппер)</div>
+      <div class="desc">Сэйкэн = лицевая часть кулака (костяшки 2-го и 3-го пальцев). Аго = подбородок, ути = удар. Хлёсткий удар снизу вверх в подбородок, траектория — дуга. Рука идёт вдоль корпуса, кулак разворачивается в момент контакта. Не путать с хуком — это именно прямая дуга снизу. Работает от подхода под подбородок противника.</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=seiken+ago+uchi+kyokushin" target="_blank">Сэйкэн аго-ути</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=kyokushin+uppercut+age+uchi+technique" target="_blank">Аппер карате техника</a>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <h4>Сэйкэн гяку-цуки (正拳逆突) — разноимённый удар кулаком</h4>
+      <div class="sets">Главный проникающий удар Кёкусинкай</div>
+      <div class="desc"><strong>Гяку</strong> = обратный, разноимённый (задняя рука при передней ноге). <strong>Цуки</strong> = проникающий удар кулаком. Удар задней рукой с полным вращением бёдер и корпуса. Три уровня: <strong>дзёдан</strong> (голова), <strong>тюдан</strong> (корпус/солнечное сплетение), <strong>гэдан</strong> (пах). Ключевое: мощь идёт от ноги → бедра → корпус → плечо → кулак.</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=gyaku+tsuki+kyokushin+tutorial" target="_blank">Гяку-цуки техника</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=reverse+punch+karate+power+hip+rotation" target="_blank">Сила гяку-цуки (EN)</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=прямой+удар+кулаком+карате+разворот+бедра" target="_blank">Удар с разворотом бедра</a>
+      </div>
+    </div>
+
+    <h3>🛡️ Блоки (9 кю)</h3>
+
+    <div class="exercise-card">
+      <h4>Сэйкэн тюдан ути-укэ (正拳中段内受)</h4>
+      <div class="sets">Блок предплечьем изнутри, средний уровень</div>
+      <div class="desc">Ути = изнутри (снаружи внутрь). Предплечье движется из-за уха наружу, перехватывая удар с внешней стороны. Локоть фиксируется перед корпусом. Применяется в кокуцу-дати при уходе назад от прямого удара. В рэнраку часто связывается с гяку-цуки.</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=uchi+uke+kyokushin+inside+block" target="_blank">Ути-укэ (inside block)</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=блок+изнутри+карате+кёкусинкай" target="_blank">Ути-укэ по-русски</a>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <h4>Сэйкэн тюдан сото-укэ (正拳中段外受)</h4>
+      <div class="sets">Блок предплечьем снаружи, средний уровень</div>
+      <div class="desc">Сото = снаружи (изнутри наружу). Предплечье движется от солнечного сплетения наружу, отбивая атаку с внутренней стороны. Локоть — перед корпусом, не уходит назад. Хорошо работает при круговых ударах ногами (маваси-гэри).</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=soto+uke+kyokushin+outside+block+tutorial" target="_blank">Сото-укэ (outside block)</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=блок+снаружи+карате+сото+укэ" target="_blank">Сото-укэ по-русски</a>
+      </div>
+    </div>
+
+    <h3>🦵 Удары ногами (9 кю)</h3>
+
+    <div class="exercise-card">
+      <h4>Маэ-гэри тюдан тюсоку (前蹴中段趾束)</h4>
+      <div class="sets">Прямой удар ногой вперёд в корпус — главный удар 9 кю</div>
+      <div class="desc"><strong>Маэ</strong> = вперёд, <strong>гэри</strong> = удар ногой, <strong>тюдан</strong> = средний уровень, <strong>тюсоку</strong> = подушечки пальцев стопы. Колено поднимается вертикально вверх (чэмберинг), затем стопа выстреливает вперёд, пальцы загнуты вверх. При ударе в контакт — подушечки пальцев. Опорная нога слегка согнута. Это и является <strong>нормативом кондиции 4 минуты</strong> из дзэнкуцу-дати на месте.</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=mae+geri+kyokushin+front+kick+tutorial" target="_blank">Маэ-гэри техника</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=front+kick+karate+chamber+proper+form" target="_blank">Правильный маэ-гэри</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=прямой+удар+ногой+карате+техника" target="_blank">Маэ-гэри по-русски</a>
+      </div>
+    </div>
+
+    <h3>🔀 Рэнраку № 1 — обязательная комбинация</h3>
+    <div class="card card-orange">
+      <p><strong>Сэйкэн гяку-цуки (проникающий) + маэ-гэри тюдан тюсоку</strong></p>
+      <p style="font-size:13px;color:#666;margin-top:6px;">Выполняется в боевой стойке. Правая рука отведена под грудь. При поворотах — с сэйкэн ути-укэ (кликер). Ключевой момент: гяку-цуки должен быть «проникающим» — не хлёстким, а с поступательным движением через цель. После него — смена ноги и маэ-гэри передней ногой.</p>
+    </div>
+    <div class="video-link-row">
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=kyokushin+renraku+gyaku+tsuki+mae+geri+combination" target="_blank">Рэнраку гяку-цуки + маэ-гэри</a>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=кёкусинкай+рэнраку+комбинации+базовые" target="_blank">Рэнраку базовые (рус.)</a>
+    </div>
+
+    <h3>📋 Ката Тайкёку соно ни</h3>
+    <div class="exercise-card">
+      <h4>Тайкёку соно ни — 2-е базовое ката</h4>
+      <div class="sets">Обязательное ката 9 кю (+ Тайкёку соно ити от 10 кю)</div>
+      <div class="desc">20 движений. Выполняется по H-образной линии (эмбусэн). Основные техники в дзэнкуцу-дати: гэдан-барай при повороте, гяку-цуки, дзёдан-укэ. Отличие от Тайкёку соно ити — добавлены удары гяку-цуки после каждого блока. Нужно чётко держать стойку и выполнять кимэ (фиксацию) в каждом движении.</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=taikyoku+sono+ni+kyokushin+kata" target="_blank">Тайкёку соно ни (видео ката)</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=taikyoku+sono+ni+kyokushin+step+by+step" target="_blank">Тайкёку соно ни пошагово</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=тайкёку+соно+ни+кёкусинкай+ката" target="_blank">Тайкёку соно ни (рус.)</a>
+      </div>
+    </div>
+    <div class="video-link-row">
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=taikyoku+sono+ichi+kyokushin+kata" target="_blank">Тайкёку соно ити (10 кю)</a>
+    </div>
+
+    <h3>🫁 Дыхание: Ногарэ 1 и 2</h3>
+    <div class="exercise-card">
+      <h4>Ногарэ 1 — насыщение кислородом</h4>
+      <div class="desc">Медленный глубокий вдох через нос → медленный длинный выдох. Цель: насыщение организма кислородом после интенсивной работы. Выполняется стоя в санчин-дати или хэйко-дати. 5–8 повторений.</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=nogare+breathing+kyokushin+nogare+1+2" target="_blank">Ногарэ 1 и 2 техника</a>
+      </div>
+    </div>
+    <div class="exercise-card">
+      <h4>Ногарэ 2 — снижение пульса</h4>
+      <div class="desc">Быстрый вдох через нос → плавный длинный контролируемый выдох. Цель: снижение частоты пульса после боя или интенсивной кондиции, достижение спокойствия. Обязательно отрабатывать после каждого боя на тренировке.</div>
+    </div>
+  </div>
+
+  <!-- ===== ОТЖИМАНИЯ ===== -->
+  <div id="pushups" class="section">
+    <h2>💪 Отжимания с нуля за 49 дней</h2>
+    <div class="tip-box">
+      <strong>Стартовая точка: 0 отжиманий → цель: 20+ на сэйкэн</strong>
+      Начинаем с колен и негативных повторений. Прогресс реален — большинство людей с нуля выходят на 10–15 за 4–6 недель при регулярности 3×/нед.
+    </div>
+    <div class="pushup-tracker">
+      <h3>Прогрессия по неделям</h3>
+      <div class="week-label">Неделя 1 — Фундамент (с колен)</div>
+      <div class="week-pushup">
+        <div class="pu-day"><span>Пн</span><strong>5×5</strong><span>с колен</span></div>
+        <div class="pu-day"><span>Вт</span><strong>—</strong><span>отдых</span></div>
+        <div class="pu-day"><span>Ср</span><strong>5×5</strong><span>с колен</span></div>
+        <div class="pu-day"><span>Чт</span><strong>—</strong><span>отдых</span></div>
+        <div class="pu-day"><span>Пт</span><strong>5×6</strong><span>с колен</span></div>
+        <div class="pu-day"><span>Сб</span><strong>ТЕСТ</strong><span>макс.</span></div>
+        <div class="pu-day"><span>Вс</span><strong>—</strong><span>МФР</span></div>
+      </div>
+      <div class="week-label">Неделя 2 — Переход к полным</div>
+      <div class="week-pushup">
+        <div class="pu-day"><span>Пн</span><strong>3×3</strong><span>полные</span></div>
+        <div class="pu-day"><span>Вт</span><strong>—</strong></div>
+        <div class="pu-day"><span>Ср</span><strong>3×4</strong><span>полные</span></div>
+        <div class="pu-day"><span>Чт</span><strong>—</strong></div>
+        <div class="pu-day"><span>Пт</span><strong>3×5</strong><span>полные</span></div>
+        <div class="pu-day"><span>Сб</span><strong>ТЕСТ</strong></div>
+        <div class="pu-day"><span>Вс</span><strong>—</strong><span>МФР</span></div>
+      </div>
+      <div class="week-label">Недели 3–4 — Рост</div>
+      <div class="week-pushup">
+        <div class="pu-day"><span>Пн</span><strong>4×5</strong><span>полные</span></div>
+        <div class="pu-day"><span>Вт</span><strong>—</strong></div>
+        <div class="pu-day"><span>Ср</span><strong>4×6</strong><span>полные</span></div>
+        <div class="pu-day"><span>Чт</span><strong>—</strong></div>
+        <div class="pu-day"><span>Пт</span><strong>4×7</strong><span>полные</span></div>
+        <div class="pu-day"><span>Сб</span><strong>ТЕСТ</strong></div>
+        <div class="pu-day"><span>Вс</span><strong>—</strong><span>МФР</span></div>
+      </div>
+      <div class="week-label">Недели 5–6 — Сэйкэн (кулаки)</div>
+      <div class="week-pushup">
+        <div class="pu-day"><span>Пн</span><strong>5×6</strong><span>сэйкэн</span></div>
+        <div class="pu-day"><span>Вт</span><strong>—</strong></div>
+        <div class="pu-day"><span>Ср</span><strong>5×7</strong><span>сэйкэн</span></div>
+        <div class="pu-day"><span>Чт</span><strong>—</strong></div>
+        <div class="pu-day"><span>Пт</span><strong>3×макс</strong><span>сэйкэн</span></div>
+        <div class="pu-day"><span>Сб</span><strong>ТЕСТ</strong></div>
+        <div class="pu-day"><span>Вс</span><strong>—</strong><span>МФР</span></div>
+      </div>
+      <div class="week-label">Неделя 7 — Подводка к экзамену</div>
+      <div class="week-pushup">
+        <div class="pu-day"><span>Пн</span><strong>3×10</strong><span>сэйкэн</span></div>
+        <div class="pu-day"><span>Вт</span><strong>—</strong></div>
+        <div class="pu-day"><span>Ср</span><strong>2×8</strong><span>легко</span></div>
+        <div class="pu-day"><span>Чт</span><strong>—</strong></div>
+        <div class="pu-day"><span>Пт</span><strong>—</strong><span>отдых</span></div>
+        <div class="pu-day"><span>Сб</span><strong>🥋 ЭКЗАМЕН</strong></div>
+        <div class="pu-day"><span>Вс</span><strong>—</strong></div>
+      </div>
+    </div>
+    <h3>Виды отжиманий — прогрессия сложности</h3>
+    <div class="exercise-card">
+      <h4>1. Отжимания у стены</h4>
+      <div class="sets">День 1–3: 3 × 10</div>
+      <div class="desc">Стоя лицом к стене, руки на ширине плеч. Нарабатывает нейромышечный паттерн движения.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=wall+pushup+beginner+form" target="_blank">Отжимания у стены</a></div>
+    </div>
+    <div class="exercise-card">
+      <h4>2. Отжимания с колен на ладонях</h4>
+      <div class="sets">Нед. 1: 5 × 5–8</div>
+      <div class="desc">Колени на полу, тело прямая линия от колен до головы. Опускаться медленно (3 сек вниз), быстро вверх.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=knee+pushup+proper+form+beginner" target="_blank">Отжимания с колен</a></div>
+    </div>
+    <div class="exercise-card">
+      <h4>3. Негативные отжимания (ключевой приём для роста с нуля)</h4>
+      <div class="sets">3 × 3–5 (вставлять постоянно в первые 2 нед.)</div>
+      <div class="desc">Принять упор лёжа → очень медленно опускаться 5–8 секунд → с колен/скамьи вернуться вверх. Эксцентрическая фаза — самая эффективная для роста силы.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=negative+eccentric+pushup+zero+beginner" target="_blank">Негативные отжимания</a></div>
+    </div>
+    <div class="exercise-card">
+      <h4>4. Полные отжимания на ладонях</h4>
+      <div class="sets">Нед. 2+: 3–5 × 3–10</div>
+      <div class="desc">Тело — жёсткая доска. Локти под углом 45° к туловищу. Грудь касается пола. Не смотреть в пол — взгляд на 30–50 см перед руками.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=perfect+pushup+form+full+tutorial" target="_blank">Правильные отжимания</a></div>
+    </div>
+    <div class="exercise-card">
+      <h4>5. Отжимания на сэйкэн — норматив экзамена</h4>
+      <div class="sets">Нед. 4+: по нарастающей</div>
+      <div class="desc">Кулаки на полу — костяшки 2-го и 3-го пальцев. Запястье прямое, не прогнуто. На первых тренировках подкладывать коврик под кулаки. Укрепляет запястья и структуру кулака — важно для карате. После освоения — отрабатывать на твёрдом полу.</div>
+      <div class="video-link-row">
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=seiken+pushup+knuckle+pushup+kyokushin" target="_blank">Отжимания на кулаках</a>
+        <a class="yt-link" href="https://www.youtube.com/results?search_query=knuckle+pushup+wrist+conditioning+karate" target="_blank">Закалка кулаков</a>
+      </div>
+    </div>
+    <div class="tip-box">
+      <strong>Ежедневная планка на кулаках — бонус</strong>
+      После отжиманий — планка в упоре на кулаках 20 → 60 сек (прогрессия по неделям). Укрепляет запястья и корпус.
+    </div>
+  </div>
+
+  <!-- ===== ГАНТЕЛИ ===== -->
+  <div id="dumbbells" class="section">
+    <h2>🏋️ Упражнения с гантелями для рук</h2>
+    <div class="tip-box">
+      <strong>Цель: функциональная сила для карате</strong>
+      Акцент: передняя дельта (удары), трицепс (разгибание в ударе), предплечья (кулак), бицепс (блоки). ВТ и ЧТ — дни гантелей. 25–35 мин.
+    </div>
+    <h3>Плечи — сила удара</h3>
+    <div class="exercise-card">
+      <h4>Жим гантелей стоя (армейский жим)</h4>
+      <div class="sets">3 × 8–12</div>
+      <div class="desc">Гантели на уровне ушей, локти строго под гантелями. Жать вертикально вверх, не прогибать поясницу. Напрямую имитирует траекторию дзёдан-цуки.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=dumbbell+overhead+press+standing+form" target="_blank">Армейский жим гантелей</a></div>
+    </div>
+    <div class="exercise-card">
+      <h4>Фронтальный подъём гантели</h4>
+      <div class="sets">3 × 10–15 каждой рукой</div>
+      <div class="desc">Стоя, поднимать гантель перед собой до уровня плеча. Нагружает переднюю дельту — именно она работает в прямых ударах (цуки).</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=dumbbell+front+raise+proper+form" target="_blank">Фронтальный подъём</a></div>
+    </div>
+    <div class="exercise-card">
+      <h4>Боковые махи (средняя дельта)</h4>
+      <div class="sets">3 × 12–15</div>
+      <div class="desc">Поднимать в стороны до горизонтали. Не раскачиваться. Стабилизирует плечо при блоках и ударах в стороны.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=lateral+raise+dumbbell+proper+form" target="_blank">Боковые махи</a></div>
+    </div>
+    <h3>Бицепс — блоки и захваты</h3>
+    <div class="exercise-card">
+      <h4>Бицепс-кёрл с супинацией</h4>
+      <div class="sets">3 × 10–12</div>
+      <div class="desc">Локоть прижат, кисть разворачивается наружу в верхней точке. Медленно вниз (2 сек). Бицепс активен в блоках ути-укэ и сото-укэ.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=dumbbell+bicep+curl+supination+form" target="_blank">Бицепс-кёрл</a></div>
+    </div>
+    <div class="exercise-card">
+      <h4>Молотковые сгибания (hammer curl)</h4>
+      <div class="sets">3 × 10–12</div>
+      <div class="desc">Большой палец вверх всё время. Нагружает плечевую мышцу + предплечья. Важно для силы захвата кулака.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=hammer+curl+dumbbell+form" target="_blank">Молотковый кёрл</a></div>
+    </div>
+    <h3>Трицепс — разгибание в ударе</h3>
+    <div class="exercise-card">
+      <h4>Разгибание из-за головы (overhead extension)</h4>
+      <div class="sets">3 × 10–12</div>
+      <div class="desc">Одна гантель двумя руками за головой. Разгибать только в локте. Трицепс — главная мышца финального импульса цуки.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=overhead+tricep+extension+dumbbell+form" target="_blank">Разгибание из-за головы</a></div>
+    </div>
+    <div class="exercise-card">
+      <h4>Французский жим лёжа</h4>
+      <div class="sets">3 × 10</div>
+      <div class="desc">Лёжа на полу/коврике, гантели над грудью. Опускать к ушам, разгибать. Акцент на длинную головку трицепса.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=lying+tricep+extension+dumbbell+skull+crusher" target="_blank">Французский жим</a></div>
+    </div>
+    <h3>Предплечья — крепость кулака (ключ для карате)</h3>
+    <div class="exercise-card">
+      <h4>Сгибания запястий сидя</h4>
+      <div class="sets">3 × 15–20 каждой рукой</div>
+      <div class="desc">Предплечье на бедре, кисть свешивается. Сгибать и разгибать запястье. Тренирует флексоры — важны для плотного кулака в сэйкэн.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=wrist+curl+dumbbell+forearm+strength" target="_blank">Сгибания запястий</a></div>
+    </div>
+    <div class="exercise-card">
+      <h4>Пронация/супинация</h4>
+      <div class="sets">3 × 20 каждой рукой</div>
+      <div class="desc">Локоть прижат, вращать кисть с гантелью ладонью вверх-вниз. Ротаторы предплечья нужны для доворота кулака в цуки.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=forearm+pronation+supination+dumbbell+exercise" target="_blank">Пронация/супинация</a></div>
+    </div>
+    <div class="exercise-card">
+      <h4>Изометрическое сжатие кулака</h4>
+      <div class="sets">5 × 30 сек или 20 сжатий × 3 подхода</div>
+      <div class="desc">Держать гантель, максимально сжимая кулак. Можно заменить эспандером-кольцом. Прямая подготовка кулака к стойке на сэйкэн.</div>
+    </div>
+  </div>
+
+  <!-- ===== ШПАГАТЫ ===== -->
+  <div id="splits" class="section">
+    <h2>🧘 Шпагаты за 49 дней</h2>
+    <div class="tip-box">
+      <strong>Реалистичные ожидания</strong>
+      При нулевой базе за 49 дней: значительный прогресс + рабочий шпагат (5–15 см от пола) — реально. Ключ: растяжка КАЖДЫЙ ДЕНЬ (можно 2 раза: утром лёгкая, вечером глубокая). Без боли — только на грани дискомфорта.
+    </div>
+    <h3>🎥 Видео для изучения</h3>
+    <div class="video-link-row">
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=поперечный+шпагат+за+месяц+с+нуля" target="_blank">Поперечный с нуля (рус.)</a>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=продольный+шпагат+за+30+дней" target="_blank">Продольный за 30 дней</a>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=Thomas+Kurz+splits+stretching+science" target="_blank">Thomas Kurz method</a>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=how+to+do+the+splits+in+30+days+beginners" target="_blank">Splits for beginners (EN)</a>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=PNF+stretching+splits+contract+relax" target="_blank">PNF stretching splits</a>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=карате+гибкость+шпагат+тренировка" target="_blank">Шпагат для каратиста</a>
+    </div>
+
+    <div class="card split-card">
+      <div class="phase-label">Нед. 1–2 — Подготовка</div>
+      <h4>Цель: привыкание, снятие напряжения</h4>
+      <ul>
+        <li><strong>МФР ролл по внутренней поверхности бедра</strong> — 2 мин (до любой растяжки)</li>
+        <li><strong>Баттерфляй (бабочка)</strong>: сидя, стопы вместе, колени в стороны. 3 × 60 сек.</li>
+        <li><strong>Поза голубя</strong>: одна нога согнута перед собой, другая вытянута назад. 3 × 60 сек каждой.</li>
+        <li><strong>Боковые выпады</strong>: широкая стойка, переносить вес поочерёдно. 20 повт.</li>
+        <li><strong>Продольный выпад</strong>: одна нога вперёд, другая назад. 60 сек каждой.</li>
+      </ul>
+    </div>
+    <div class="card split-card">
+      <div class="phase-label">Нед. 3–4 — Активная растяжка</div>
+      <h4>Цель: увеличить амплитуду</h4>
+      <ul>
+        <li><strong>Поперечный у стены</strong>: лёжа на спине, ноги на стену, медленно разводить. 3 × 2 мин.</li>
+        <li><strong>PNF-техника</strong>: в выпаде напрячь мышцу бедра на 5 сек → расслабить → опуститься глубже. 5–8 раз.</li>
+        <li><strong>Наклон ноги врозь сидя</strong>: с прямой спиной тянуться к полу. 3 × 90 сек.</li>
+        <li><strong>Вращения бедра</strong>: стоя, круговые движения ногой. 15 × каждой.</li>
+      </ul>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=PNF+stretching+technique+contract+relax+splits" target="_blank">PNF для шпагата</a></div>
+    </div>
+    <div class="card split-card">
+      <div class="phase-label">Нед. 5–7 — Глубокая растяжка</div>
+      <h4>Цель: приблизиться к полному шпагату</h4>
+      <ul>
+        <li><strong>Продольный с опорой на руки</strong>: медленно скользить ногами, руки по бокам. 3 × 2 мин каждой.</li>
+        <li><strong>Поперечный с опорой о стул</strong>: медленно разводить ноги. 3 × 2 мин.</li>
+        <li><strong>Утренний протокол (10 мин ежедневно)</strong>: баттерфляй 2 мин → боковой наклон 2×60 сек → продольный 2×60 сек → поперечная 2 мин.</li>
+        <li><strong>МФР ролл</strong>: прокатывать внутреннюю поверхность бедра 2–3 мин ДО растяжки.</li>
+      </ul>
+    </div>
+    <h3>Ежедневный минимум (15 мин)</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Упражнение</th><th>Время</th><th>Примечание</th></tr>
+        <tr><td>МФР ролл по бёдрам</td><td>3 мин</td><td>Перед растяжкой, всегда</td></tr>
+        <tr><td>Баттерфляй</td><td>2 мин</td><td>Наклоняться к полу</td></tr>
+        <tr><td>Продольный выпад (правая)</td><td>90 сек</td><td>Держать положение</td></tr>
+        <tr><td>Продольный выпад (левая)</td><td>90 сек</td><td>Держать положение</td></tr>
+        <tr><td>Наклон ноги врозь</td><td>2 мин</td><td>Спина прямая</td></tr>
+        <tr><td>Поперечная растяжка</td><td>3 мин</td><td>Постепенно расширять угол</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== ЯГОДИЦЫ ===== -->
+  <div id="glutes" class="section">
+    <h2>🍑 Упражнения для ягодиц</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:16px;">Инвентарь: МФР ролл · коврик · гантели. 30–40 мин, 2–3 раза в неделю.</p>
+    <div class="tip-box">
+      <strong>3 вектора нагрузки</strong>
+      Разгибание (присед, становая), отведение (кик в сторону), наружная ротация (клэм-шелл). Нужны все три.
+    </div>
+    <h3>МФР разминка (5 мин — всегда перед тренировкой)</h3>
+    <div class="exercise-card glute-card">
+      <h4>МФР ягодиц</h4>
+      <div class="sets">2 мин каждой стороны</div>
+      <div class="desc">Сидя на ролле, скрестить правую ногу на левое колено (поза «четвёрка»). Перекатываться, задерживаясь на болевых точках 20–30 сек.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=foam+roll+glutes+piriformis+technique" target="_blank">МФР ягодиц</a></div>
+    </div>
+    <h3>Блок A — Разгибание</h3>
+    <div class="exercise-card glute-card">
+      <h4>Ягодичный мост с гантелью</h4>
+      <div class="sets">4 × 12–15</div>
+      <div class="desc">Лёжа, ноги согнуты, гантель на тазу. Поднять таз, сжать ягодицы — пауза 1 сек. Прогрессия: плечи на скамью (болгарский мост).</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=hip+thrust+dumbbell+barbell+glutes+form" target="_blank">Ягодичный мост</a></div>
+    </div>
+    <div class="exercise-card glute-card">
+      <h4>Болгарский выпад с гантелями</h4>
+      <div class="sets">3 × 10 каждой ногой</div>
+      <div class="desc">Задняя нога на скамье, гантели в руках. Опуститься вниз, переднее колено над стопой. Медленно вниз (2 сек).</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=bulgarian+split+squat+dumbbell+glutes+form" target="_blank">Болгарский выпад</a></div>
+    </div>
+    <div class="exercise-card glute-card">
+      <h4>Румынская тяга (RDL)</h4>
+      <div class="sets">3 × 12</div>
+      <div class="desc">Стоя, гантели перед бёдрами. Наклоняться с прямой спиной до натяжения в бицепсе бедра. Встать сжимая ягодицы.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=romanian+deadlift+dumbbell+RDL+glutes+form" target="_blank">Румынская тяга</a></div>
+    </div>
+    <div class="exercise-card glute-card">
+      <h4>Сумо-присед с гантелью</h4>
+      <div class="sets">4 × 15</div>
+      <div class="desc">Широкая стойка, носки 45°. Гантель вертикально двумя руками. Опуститься ниже параллели. Больше нагрузки на ягодицы и внутренние бёдра.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=sumo+squat+dumbbell+glutes+inner+thigh+form" target="_blank">Сумо-присед</a></div>
+    </div>
+    <h3>Блок B — Отведение и ротация</h3>
+    <div class="exercise-card glute-card">
+      <h4>Кик назад с гантелью (donkey kick)</h4>
+      <div class="sets">3 × 15 каждой ногой</div>
+      <div class="desc">Четвереньки. Гантель в подколенной ямке. Поднять ногу назад-вверх, пятка к потолку. Сжать ягодицу вверху. Не прогибать поясницу.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=donkey+kick+glute+exercise+dumbbell+form" target="_blank">Кик назад (donkey kick)</a></div>
+    </div>
+    <div class="exercise-card glute-card">
+      <h4>Клэм-шелл (моллюск)</h4>
+      <div class="sets">3 × 20 каждой стороны</div>
+      <div class="desc">Лёжа на боку, колени согнуты 45°. Поднимать верхнее колено не отрывая стоп. Для сложности: гантель на бедро. Прорабатывает среднюю ягодичную.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=clamshell+exercise+glutes+side+lying+form" target="_blank">Клэм-шелл</a></div>
+    </div>
+    <div class="exercise-card glute-card">
+      <h4>Боковой кик (fire hydrant)</h4>
+      <div class="sets">3 × 15 каждой ногой</div>
+      <div class="desc">Четвереньки. Поднять ногу в сторону и вверх. Пауза 1 сек. Малая ягодичная мышца.</div>
+      <div class="video-link-row"><a class="yt-link" href="https://www.youtube.com/results?search_query=fire+hydrant+exercise+glutes+form" target="_blank">Fire hydrant</a></div>
+    </div>
+    <h3>Финишный суперсет (без отдыха, 3 раунда)</h3>
+    <div class="card card-purple">
+      <ul>
+        <li>Ягодичный мост × 20 пульсирующих — 30 сек</li>
+        <li>Приседание с прыжком × 10 — 30 сек</li>
+        <li>Кик назад правой × 15 — 30 сек</li>
+        <li>Кик назад левой × 15 — 30 сек</li>
+      </ul>
+      <p style="margin-top:8px;font-size:13px;color:#888;">Отдых 45 сек между раундами.</p>
+    </div>
+    <h3>Растяжка после (5 мин, обязательно)</h3>
+    <ul>
+      <li>Поза «четвёрка» лёжа — 90 сек × каждая сторона</li>
+      <li>Поза голубя — 60 сек × каждая сторона</li>
+      <li>МФР ролл ягодиц — 1 мин каждой стороны</li>
+    </ul>
+    <div class="video-link-row">
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=glute+stretch+after+workout+piriformis" target="_blank">Растяжка ягодиц</a>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=pigeon+pose+glute+stretch+yoga" target="_blank">Поза голубя</a>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+function show(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (el) el.classList.add('active');
+  return false;
+}
+
+document.querySelectorAll('.nav a').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const id = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+    show(id, this);
+  });
+});
+
+function toggleT(headerEl) {
+  const chk = headerEl.querySelector('.theory-chk');
+  const body = headerEl.nextElementSibling;
+  chk.classList.toggle('checked');
+  body.classList.toggle('open');
+}
+
+// Build calendar
+const types = [
+  'Карате','Гантели','Карате','Гантели','Карате','Длинная','МФР',
+  'Карате','Гантели','Карате','Гантели','Карате','Длинная','МФР',
+  'Карате','Гантели','Карате','Гантели','Карате','Длинная','МФР',
+  'Карате','Гантели','Карате','Гантели','Карате','Длинная','МФР',
+  'Карате','Гантели','Карате','Гантели','Карате','Длинная','МФР',
+  'Карате','Гантели','Карате','Гантели','Карате','Длинная','МФР',
+  'Лёгкая','—','Лёгкая','—','—','🥋 ЭКЗАМЕН','—',
+];
+const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const cal = document.getElementById('calendar');
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem('karate49') || '{}'); } catch(e){}
+
+for (let w = 0; w < 7; w++) {
+  const wl = document.createElement('div');
+  wl.className = 'week-label';
+  wl.textContent = 'Неделя ' + (w+1);
+  cal.appendChild(wl);
+  const grid = document.createElement('div');
+  grid.className = 'week-grid';
+  for (let d = 0; d < 7; d++) {
+    const i = w*7+d;
+    const t = types[i];
+    const isRest = t === 'МФР' || t === '—';
+    const cell = document.createElement('div');
+    cell.className = 'day-cell' + (isRest ? ' rest' : '');
+    if (saved[i]) cell.classList.add('done');
+    cell.innerHTML = '<span class="day-num">'+(i+1)+'</span><div>'+days[d]+'</div><div class="day-label">'+t+'</div>';
+    if (!isRest) {
+      cell.onclick = () => {
+        cell.classList.toggle('done');
+        saved[i] = cell.classList.contains('done');
+        try { localStorage.setItem('karate49', JSON.stringify(saved)); } catch(e){}
+      };
+    }
+    grid.appendChild(cell);
+  }
+  cal.appendChild(grid);
+}
+</script>
+</body>
+</html>

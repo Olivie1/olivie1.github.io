@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Чек-ин — стиль приложения</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #12141c;
+    --panel: #1b2032;
+    --indigo: #2a3358;
+    --tatami: #7a9b7e;
+    --rope: #c98a4b;
+    --chalk: #eeeae1;
+    --chalk-dim: #a8a6a3;
+    --flag-ok: #6f9b74;
+    --flag-warn: #d1a24a;
+    --flag-high: #c96a53;
+    --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --font-body: "Inter", -apple-system, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--chalk);
+    font-family: var(--font-body);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px 64px; }
+
+  header { margin-bottom: 40px; }
+  header .mark {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-display); font-weight: 700; font-size: 20px;
+  }
+  header .mark .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--rope); }
+  header p { color: var(--chalk-dim); margin: 10px 0 0; max-width: 42ch; }
+
+  section { margin-bottom: 44px; }
+  h2 {
+    font-family: var(--font-display); font-size: 15px; font-weight: 600;
+    margin: 0 0 16px; color: var(--chalk-dim);
+  }
+
+  /* palette */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+  .swatch { border-radius: 4px; overflow: hidden; border: 1px solid rgba(238,234,225,0.08); }
+  .swatch .fill { height: 64px; }
+  .swatch .label { padding: 8px 10px; background: var(--panel); font-size: 12px; }
+  .swatch .label b { display: block; font-family: var(--font-display); font-size: 13px; }
+  .swatch .label span { color: var(--chalk-dim); }
+
+  /* type */
+  .type-row { border-top: 1px solid rgba(238,234,225,0.1); padding: 18px 0; display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  .type-row:last-child { border-bottom: 1px solid rgba(238,234,225,0.1); }
+  .num-display { font-family: var(--font-display); font-weight: 700; font-size: 56px; letter-spacing: -0.02em; }
+  .num-display sup { font-size: 18px; color: var(--chalk-dim); font-weight: 500; margin-left: 4px; }
+  .heading-sample { font-family: var(--font-display); font-weight: 600; font-size: 24px; }
+  .body-sample { font-size: 16px; max-width: 34ch; }
+  .small-sample { font-size: 13px; color: var(--chalk-dim); }
+  .type-row .tag { font-size: 12px; color: var(--chalk-dim); white-space: nowrap; }
+
+  /* buttons */
+  .btn-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 20px; }
+  .btn {
+    font-family: var(--font-body); font-weight: 600; font-size: 15px;
+    padding: 13px 22px; border-radius: 10px; border: none; cursor: pointer;
+  }
+  .btn-primary { background: var(--rope); color: var(--ink); }
+  .btn-ghost { background: transparent; color: var(--chalk); border: 1px solid rgba(238,234,225,0.25); }
+
+  .scale-label { font-size: 13px; color: var(--chalk-dim); margin-bottom: 10px; }
+  .scale { display: flex; gap: 10px; }
+  .scale button {
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 1px solid rgba(238,234,225,0.2); background: var(--panel);
+    color: var(--chalk); font-family: var(--font-display); font-weight: 600; font-size: 17px;
+  }
+  .scale button.active { background: var(--tatami); border-color: var(--tatami); color: var(--ink); }
+
+  /* card */
+  .card {
+    background: var(--panel); border: 1px solid rgba(238,234,225,0.08);
+    border-radius: 6px; padding: 20px;
+  }
+  .card .row1 { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+  .card .row1 .session { font-family: var(--font-display); font-weight: 600; font-size: 17px; }
+  .card .row1 .fill-rate { font-family: var(--font-display); font-weight: 700; font-size: 22px; color: var(--tatami); }
+  .flags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .flag { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 6px 10px; border-radius: 20px; background: rgba(238,234,225,0.05); }
+  .flag .led { width: 8px; height: 8px; border-radius: 50%; }
+  .led.ok { background: var(--flag-ok); }
+  .led.warn { background: var(--flag-warn); }
+  .led.high { background: var(--flag-high); }
+  .card .note { margin-top: 14px; font-size: 14px; color: var(--chalk-dim); border-top: 1px solid rgba(238,234,225,0.08); padding-top: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="mark"><span class="dot"></span>Чек-ин</div>
+    <p>Тёмная, техничная тема, но привязанная к материалам додзё — индиго кимоно, татами, канат для отжима руки после тренировки, а не абстрактный неон на чёрном.</p>
+  </header>
+
+  <section>
+    <h2>Палитра</h2>
+    <div class="swatches">
+      <div class="swatch"><div class="fill" style="background:var(--ink)"></div><div class="label"><b>Ink</b><span>#12141c — фон</span></div></div>
+      <div class="swatch"><div class="fill" style="background:var(--panel)"></div><div class="label"><b>Panel</b><span>#1b2032 — карточки</span></div></div>
+      <div class="swatch"><div class="fill" style="background:var(--tatami)"></div><div class="label"><b>Tatami</b><span>#7a9b7e — вторичный</span></div></div>
+      <div class="swatch"><div class="fill" style="background:var(--rope)"></div><div class="label"><b>Rope</b><span>#c98a4b — акцент/CTA</span></div></div>
+      <div class="swatch"><div class="fill" style="background:var(--chalk)"></div><div class="label"><b>Chalk</b><span>#eeeae1 — текст</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Типографика</h2>
+    <div class="type-row">
+      <div class="num-display">4<sup>/5</sup></div>
+      <div class="tag">Space Grotesk 700 — цифровые показатели</div>
+    </div>
+    <div class="type-row">
+      <div class="heading-sample">Сводка по группе</div>
+      <div class="tag">Space Grotesk 600 — заголовки</div>
+    </div>
+    <div class="type-row">
+      <div class="body-sample">Заполнение занимает четыре нажатия и меньше тридцати секунд.</div>
+      <div class="tag">Inter 400 — текст</div>
+    </div>
+    <div class="type-row">
+      <div class="small-sample">обновлено 2 минуты назад</div>
+      <div class="tag">Inter 500 — мелкие подписи</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Кнопки и выбор по шкале</h2>
+    <div class="btn-row">
+      <button class="btn btn-primary">Отправить</button>
+      <button class="btn btn-ghost">Пропустить</button>
+    </div>
+    <div class="scale-label">Уровень усталости (шкала Hooper, 1–5)</div>
+    <div class="scale">
+      <button>1</button><button>2</button><button class="active">3</button><button>4</button><button>5</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Карточка сводки</h2>
+    <div class="card">
+      <div class="row1">
+        <span class="session">Вечерняя группа · сегодня</span>
+        <span class="fill-rate">68%</span>
+      </div>
+      <div class="flags">
+        <span class="flag"><span class="led ok"></span>12 в норме</span>
+        <span class="flag"><span class="led warn"></span>4 повышенная усталость</span>
+        <span class="flag"><span class="led high"></span>1 отмечена боль</span>
+      </div>
+      <div class="note">Стоит присмотреться к разминке — усталость выше обычного у части группы, три сессии подряд.</div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

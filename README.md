@@ -24,20 +24,21 @@ frontend при push в `main`.
 Перед публикацией backend:
 
 1. Разверните репозиторий `ibuki-back` по его README.
-2. Откройте **Settings → Secrets and variables → Actions → Variables**.
-3. Создайте переменную `VITE_API_URL`, например:
+2. Подтверждённый адрес backend задан в `.env.production` и в `env` job
+   `.github/workflows/pages.yml`:
 
    ```text
    https://ibuki-back.onrender.com
    ```
 
-4. В **Settings → Pages → Build and deployment** выберите источник
+3. В **Settings → Pages → Build and deployment** выберите источник
    **GitHub Actions**.
-5. Запустите workflow `Deploy frontend to GitHub Pages` или сделайте push.
+4. Запустите workflow `Deploy frontend to GitHub Pages` или сделайте push.
 
 URL обязан использовать HTTPS, иначе браузер заблокирует API-запросы со
 страницы GitHub Pages как mixed content. После смены `VITE_API_URL` frontend
-нужно пересобрать: Vite встраивает адрес во время build.
+нужно пересобрать: Vite встраивает адрес во время build. При переносе backend
+обновите оба файла. Workflow задаёт адрес явно и не зависит от Actions variable.
 
 ## Локальная разработка
 
@@ -82,7 +83,7 @@ docker compose -f docker-compose.local.yml up --build -d
 Этот вариант использует `BACKEND_URL=http://backend:8000` в общей Docker-сети.
 Если порт 8000 уже занят, используйте `BACKEND_PORT=18000` перед командой.
 GitHub Pages не поддерживает nginx proxy: workflow требует публичный HTTPS
-адрес backend в Actions variable `VITE_API_URL` и останавливается без него.
+адрес backend в job environment `VITE_API_URL` и проверяет его перед сборкой.
 
 ## Проверки
 
@@ -124,7 +125,7 @@ src/
 
 - `Failed to fetch`: проверьте `VITE_API_URL`, HTTPS, CORS и `/health` backend.
 - API вызывает `olivie1.github.io`: переменная не была задана при build;
-  задайте GitHub Actions variable и перезапустите workflow.
+  проверьте job environment в workflow и перезапустите публикацию.
 - QR ведёт на localhost: исправьте `FRONTEND_URL` backend и создайте новую
   сессию — URL записывается в QR в момент создания.
 - После перезапуска исчезли данные: backend работает без постоянного диска или

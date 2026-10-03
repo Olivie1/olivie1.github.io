@@ -98,7 +98,7 @@ export const CoachLogin: React.FC<CoachLoginProps> = ({ onLoginSuccess }) => {
           <p className="text-xs text-chalk-dim text-center">
             Для демонстрации используйте код:
             <br />
-            <code className="text-rope font-bold">default-trainer-secret-12345</code>
+            <code className="block break-all text-rope font-bold select-all">db8450d00d8a3c79a30908b16469e7dc929f20f7afb1ecb4ed1903af254eb62d</code>
           </p>
         </div>
       </div>

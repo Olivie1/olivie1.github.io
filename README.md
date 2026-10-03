@@ -28,7 +28,7 @@ frontend при push в `main`.
    `.github/workflows/pages.yml`:
 
    ```text
-   https://ibuki-back.onrender.com
+   https://ibuki-back-docker.onrender.com
    ```
 
 3. В **Settings → Pages → Build and deployment** выберите источник

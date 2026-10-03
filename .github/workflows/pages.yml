@@ -17,7 +17,7 @@ concurrency:
 jobs:
   build-and-deploy:
     env:
-      VITE_API_URL: https://ibuki-back.onrender.com
+      VITE_API_URL: https://ibuki-back-docker.onrender.com
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

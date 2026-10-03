@@ -21,7 +21,8 @@ FROM nginx:alpine
 # Копируем собранные файлы из первой стадии
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+ENV BACKEND_URL=http://host.docker.internal:8000
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 # Открываем порт 80
 EXPOSE 80

@@ -58,7 +58,7 @@ npm run dev
 ```
 
 Откройте `http://localhost:5173`. По умолчанию запросы идут на
-`http://localhost:8000`.
+`/api` через Vite proxy на `http://localhost:8000`.
 
 ## Локальный Docker frontend
 
@@ -67,8 +67,22 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-Frontend будет доступен на `http://localhost:8080`. В production bundle будет
-встроен `VITE_API_URL` из `.env`. Backend запускается отдельно из `ibuki-back`.
+Frontend будет доступен на `http://localhost:8080`. По умолчанию nginx
+проксирует `/api` на backend хоста (`host.docker.internal:8000`). Backend
+запускается отдельно из `ibuki-back`. `BACKEND_URL` задаёт адрес upstream nginx;
+`VITE_API_URL=/` оставляет запросы на адресе frontend. Для отдельного публичного
+backend задайте `VITE_API_URL=https://<backend-host>` без `/api` и пересоберите.
+
+Для общего запуска из родительского каталога с обоими репозиториями:
+
+```bash
+docker compose -f docker-compose.local.yml up --build -d
+```
+
+Этот вариант использует `BACKEND_URL=http://backend:8000` в общей Docker-сети.
+Если порт 8000 уже занят, используйте `BACKEND_PORT=18000` перед командой.
+GitHub Pages не поддерживает nginx proxy: workflow требует публичный HTTPS
+адрес backend в Actions variable `VITE_API_URL` и останавливается без него.
 
 ## Проверки
 

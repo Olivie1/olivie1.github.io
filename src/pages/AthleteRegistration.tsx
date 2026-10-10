@@ -38,6 +38,7 @@ export const AthleteRegistration: React.FC = () => {
         body: JSON.stringify({
           athlete_code: athleteCode.trim().toUpperCase(),
           session_id: sessionId,
+          device_token: localStorage.getItem(`device_token:${sessionId}`),
         }),
       });
 
@@ -49,6 +50,7 @@ export const AthleteRegistration: React.FC = () => {
 
       // Сохраняем device_token
       localStorage.setItem('device_token', data.data.device_token);
+      localStorage.setItem(`device_token:${sessionId}`, data.data.device_token);
 
       // Редирект на pre-чек-ин
       navigate(`/pre-checkin/${sessionId}`);
@@ -64,7 +66,7 @@ export const AthleteRegistration: React.FC = () => {
       <div className="ds-card ds-mobile-card w-full max-w-md p-8">
         <h1 className="text-3xl text-chalk text-center mb-2">Вход</h1>
         <p className="text-chalk-dim text-center mb-8 text-sm">
-          Введите ваш код для присоединения к сессии
+          Введите личный секретный код для присоединения к сессии
         </p>
 
         {error && (
@@ -76,11 +78,11 @@ export const AthleteRegistration: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="athleteCode" className="block text-chalk-dim mb-2 text-sm uppercase tracking-wider">
-              Код спортсмена
+              Секретный код участника
             </label>
             <input
               id="athleteCode"
-              type="text"
+              type="password"
               value={athleteCode}
               onChange={(e) => setAthleteCode(e.target.value)}
               placeholder="Например, A001"

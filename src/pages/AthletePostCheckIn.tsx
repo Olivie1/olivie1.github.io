@@ -1,3 +1,4 @@
+import ExtendedCheckIn from '../components/ExtendedCheckIn';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../api/baseUrl';
@@ -7,12 +8,13 @@ export const AthletePostCheckIn: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
 
+  const [basicSaved, setBasicSaved] = useState(false);
   const [rpe, setRpe] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    const deviceToken = localStorage.getItem('device_token');
+    const deviceToken = localStorage.getItem(`device_token:${sessionId}`) || localStorage.getItem('device_token');
     
     if (!deviceToken) {
       setError('Устройство не авторизовано. Вернитесь на страницу входа.');
@@ -45,17 +47,20 @@ export const AthletePostCheckIn: React.FC = () => {
 
       const data = await response.json();
 
+      if (response.status === 409) { setBasicSaved(true); return; }
       if (!response.ok) {
         throw new Error(data.error || 'Ошибка при отправке данных');
       }
 
-      navigate('/success');
+      setBasicSaved(true);
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Произошла непредвиденная ошибка'));
     } finally {
       setLoading(false);
     }
   };
+
+  if (basicSaved) return <ExtendedCheckIn sessionId={sessionId!} phase="post" onDone={() => navigate('/success')} />;
 
   return (
     <div className="ds-page min-h-screen flex flex-col px-4 py-8 max-w-lg mx-auto">

@@ -32,7 +32,7 @@ interface SessionSummary {
   high_stress_count: number;
   pain_count: number;
   avg_rpe?: number;
-  ai_note?: string;
+  extended_summary?: { facts: string[]; disclaimer: string };
 }
 
 interface CoachDashboardProps {
@@ -43,11 +43,15 @@ interface CoachDashboardProps {
 export default function CoachDashboard({ token }: CoachDashboardProps) {
   const navigate = useNavigate();
 
-  const trainerId = currentSession?.user?.id || 'trainer-main';
+  const trainerId = 'trainer-main';
   const apiUrl = API_BASE_URL;
 
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
+  const [candidates, setCandidates] = useState<{ code: string; last_measurement: string | null }[]>([]);
+  const [demoSummary, setDemoSummary] = useState<{ facts: string[]; disclaimer: string } | null>(null);
+  const [selectedCodes, setSelectedCodes] = useState('');
+  const [groupSummary, setGroupSummary] = useState<{ facts: string[]; disclaimer: string } | null>(null);
   const [athleteCount, setAthleteCount] = useState<number>(15);
   
   const [liveCheckIns, setLiveCheckIns] = useState<CheckInResponse[]>([]);
@@ -75,6 +79,8 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
           if (res.ok) {
             const data = await res.json();
             setLiveCheckIns(data.data || []);
+            const summaryRes = await fetch(`${apiUrl}/api/sessions/${activeSession.id}/summary`, { headers });
+            if (summaryRes.ok) setGroupSummary((await summaryRes.json()).data);
           }
         } catch (e) {
           console.error('Failed to fetch check-ins', e);
@@ -89,6 +95,15 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
     };
   }, [activeSession, apiUrl, token]);
 
+  const loadOptional = async (kind: 'candidates' | 'demo-summary') => {
+    setError('');
+    try {
+      const r = await fetch(`${apiUrl}/api/extended/${kind}`, { headers: { Authorization: `Bearer ${token || localStorage.getItem('coach_token')}` } });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error || d.detail);
+      if (kind === 'candidates') setCandidates(d.data); else setDemoSummary(d.data);
+    } catch (e) { setError(getErrorMessage(e, 'Ошибка загрузки')); }
+  };
+
   const handleCreateSession = async () => {
     setLoading(true);
     setError('');
@@ -102,11 +117,13 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
       const res = await fetch(`${apiUrl}/api/sessions`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ trainer_id: trainerId, athlete_count: athleteCount }),
+        body: JSON.stringify({ trainer_id: trainerId, athlete_count: athleteCount, extended_athlete_ids: selectedCodes.split(/[\s,;]+/).filter(Boolean) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to create session');
       setActiveSession(data.data);
+      setSelectedCodes('');
+      setGroupSummary(null);
       setSummary(null);
       setLiveCheckIns([]);
     } catch (err: unknown) {
@@ -157,6 +174,8 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <button className="ds-ghost p-3 mb-4" onClick={() => loadOptional('demo-summary')}>Демо: показать сводку</button>
+        {demoSummary && <div className="ds-card p-6 mb-6"><h2 className="text-2xl">Демо — вымышленные данные</h2>{demoSummary.facts.map((fact, i) => <p key={i}>{fact}</p>)}<p>{demoSummary.disclaimer}</p><button className="ds-ghost p-3" onClick={() => setDemoSummary(null)}>Закрыть демо</button></div>}
         {error && (
           <div className="ds-error mb-6 p-4 text-sm">
             {error}
@@ -182,6 +201,11 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
               />
             </div>
 
+            <button className="ds-ghost p-3 mb-3" onClick={() => loadOptional('candidates')}>Подсказка выбора по истории измерений</button>
+            {candidates.length > 0 && <div className="text-left mb-4"><p>Сначала без измерений, затем наиболее давние. Выбор остаётся за вами.</p>{candidates.map(c => <label key={c.code} className="block"><input type="checkbox" checked={selectedCodes.split(/[\s,;]+/).includes(c.code)} onChange={e => { const codes = selectedCodes.split(/[\s,;]+/).filter(Boolean); setSelectedCodes((e.target.checked ? [...new Set([...codes, c.code])] : codes.filter(x => x !== c.code)).join(', ')); }} /> {c.code} — {c.last_measurement ? new Date(c.last_measurement).toLocaleDateString('ru') : 'нет измерений'}</label>)}</div>}
+            <label className="block text-left mb-6">Коды участников расширенного режима (через пробел или запятую):
+              <textarea className="ds-input p-3" value={selectedCodes} onChange={e => setSelectedCodes(e.target.value)} placeholder="A001, A003" />
+            </label>
             <button
               onClick={handleCreateSession}
               disabled={loading}
@@ -260,6 +284,7 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
           </div>
         )}
 
+        {activeSession && groupSummary && <div className="ds-card p-6 mt-6"><h2 className="text-xl">Групповая сводка расширенного режима</h2>{groupSummary.facts.map((fact, i) => <p key={i}>{fact}</p>)}<p>{groupSummary.disclaimer}</p></div>}
         {summary && !activeSession && (
           <div className="max-w-4xl mx-auto space-y-6">
             <div className="ds-card ds-mobile-card p-8">
@@ -284,12 +309,8 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
                 </div>
               </div>
 
-              {summary.ai_note && (
-                <div className="mt-8 p-6 border-t ds-divider">
-                  <h3 className="font-display text-xl text-chalk mb-2">🤖 AI Аналитика</h3>
-                  <p className="text-chalk whitespace-pre-line">{summary.ai_note}</p>
-                </div>
-              )}
+              {summary.extended_summary && <div><h3 className="text-xl">Групповая сводка</h3>{summary.extended_summary.facts.map((fact, i) => <p key={i}>{fact}</p>)}<p>{summary.extended_summary.disclaimer}</p></div>}
+
             </div>
 
             <button

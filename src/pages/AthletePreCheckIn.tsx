@@ -1,3 +1,4 @@
+import ExtendedCheckIn from '../components/ExtendedCheckIn';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../api/baseUrl';
@@ -21,7 +22,7 @@ export const AthletePreCheckIn: React.FC = () => {
   const handlePrev = () => setStep((s) => s - 1);
 
   const handleSubmit = async () => {
-    const deviceToken = localStorage.getItem('device_token');
+    const deviceToken = localStorage.getItem(`device_token:${sessionId}`) || localStorage.getItem('device_token');
 
     if (!deviceToken) {
       setError('Устройство не авторизовано. Вернитесь на страницу входа.');
@@ -56,15 +57,13 @@ export const AthletePreCheckIn: React.FC = () => {
 
       const data = await response.json();
 
+      if (response.status === 409) { setSuccess(true); return; }
       if (!response.ok) {
         throw new Error(data.error || 'Ошибка при отправке данных');
       }
 
       setSuccess(true);
-      setTimeout(() => {
-        // Redirect somewhere, e.g. success page or waiting page
-        navigate(`/post-checkin/${sessionId}`);
-      }, 3000);
+
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Произошла непредвиденная ошибка'));
       } finally {
@@ -99,6 +98,7 @@ export const AthletePreCheckIn: React.FC = () => {
     return (
       <div className="ds-page min-h-screen flex flex-col justify-center items-center p-4 text-center">
         <div className="w-20 h-20 bg-flag-ok text-ink rounded-full flex items-center justify-center mb-6 text-4xl">✓</div>
+        <ExtendedCheckIn sessionId={sessionId!} phase="pre" onDone={() => navigate(`/post-checkin/${sessionId}`)} />
         <h1 className="text-3xl text-chalk font-display mb-2">Отлично!</h1>
         <p className="text-chalk-dim">Хорошей тренировки. Возвращайтесь после нее.</p>
       </div>
@@ -126,7 +126,7 @@ export const AthletePreCheckIn: React.FC = () => {
 
         {step === 1 && (
           <div className="animate-fade-in text-center">
-            <h2 className="text-3xl font-display text-chalk mb-4">Как ты спал?</h2>
+            <h2 className="text-3xl font-display text-chalk mb-4">Качество сна?</h2>
             <p className="text-chalk-dim mb-8">1 - Отлично, 5 - Ужасно</p>
             {renderScaleButtons(sleep, setSleep)}
           </div>

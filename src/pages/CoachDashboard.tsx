@@ -1,11 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { currentSession } from '../App';
 import { API_BASE_URL } from '../api/baseUrl';
 import { getErrorMessage } from '../api/errors';
+import { PendingSessionCreation, readPendingCreation, persistCreation, clearPendingCreation } from '../api/recovery';
 interface ActiveSession {
   id: string;
   qr_code_data: string;
+  status: string;
+  created_at: string;
+  aggregated_response?: SessionSummary | null;
 }
 
 interface CheckInResponse {
@@ -46,6 +50,10 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
   const trainerId = 'trainer-main';
   const apiUrl = API_BASE_URL;
 
+  const [history, setHistory] = useState<ActiveSession[]>([]);
+  const [displayedSessionId, setDisplayedSessionId] = useState('');
+  const [restoring, setRestoring] = useState(true);
+  const [pendingCreation, setPendingCreation] = useState<PendingSessionCreation | null>(null);
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
   const [candidates, setCandidates] = useState<{ code: string; last_measurement: string | null }[]>([]);
@@ -64,36 +72,85 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
     }
   }, [navigate, token]);
 
-  useEffect(() => {
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-    if (activeSession) {
-      const fetchCheckIns = async () => {
-        try {
-          const authToken = token || localStorage.getItem('coach_token');
-          const headers: Record<string, string> = {};
-          if (authToken) {
-            headers['Authorization'] = `Bearer ${authToken}`;
-          }
-
-          const res = await fetch(`${apiUrl}/api/checkin/sessions/${activeSession.id}`, { headers });
-          if (res.ok) {
-            const data = await res.json();
-            setLiveCheckIns(data.data || []);
-            const summaryRes = await fetch(`${apiUrl}/api/sessions/${activeSession.id}/summary`, { headers });
-            if (summaryRes.ok) setGroupSummary((await summaryRes.json()).data);
-          }
-        } catch (e) {
-          console.error('Failed to fetch check-ins', e);
-        }
-      };
-      
-      fetchCheckIns();
-      intervalId = setInterval(fetchCheckIns, 5000);
+  const showSession = useCallback((session: ActiveSession) => {
+    setDisplayedSessionId(session.id);
+    setHistory(previous => previous.some(item => item.id === session.id) ? previous.map(item => item.id === session.id ? session : item) : [session, ...previous]);
+    setLiveCheckIns([]);
+    setGroupSummary(null);
+    if (session.status === 'active') {
+      setActiveSession(session);
+      setSummary(null);
+    } else {
+      setActiveSession(null);
+      setSummary(session.aggregated_response || null);
     }
-    return () => {
-      if (intervalId) clearInterval(intervalId);
+    navigate(`/dashboard?session_id=${encodeURIComponent(session.id)}`, { replace: true });
+  }, [navigate]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const restore = async () => {
+      setRestoring(true);
+      try {
+        const pending = readPendingCreation(trainerId);
+        setPendingCreation(pending);
+        if (pending) {
+          setAthleteCount(pending.athlete_count);
+          setSelectedCodes(pending.extended_athlete_ids.join(', '));
+        }
+        const headers = { Authorization: `Bearer ${token || localStorage.getItem('coach_token')}` };
+        const r = await fetch(`${apiUrl}/api/sessions?limit=50`, { headers });
+        const d = await r.json(); if (!r.ok) throw new Error(d.error || d.detail || 'Ошибка восстановления сессий');
+        if (cancelled) return;
+        const sessions: ActiveSession[] = d.data;
+        setHistory(sessions);
+        const rememberedId = new URLSearchParams(window.location.search).get('session_id');
+        let chosen = sessions.find(session => session.id === rememberedId);
+        if (rememberedId && !chosen) {
+          const detail = await fetch(`${apiUrl}/api/sessions/${encodeURIComponent(rememberedId)}`, { headers });
+          const result = await detail.json(); if (!detail.ok) throw new Error(result.error || result.detail || 'Сессия недоступна');
+          chosen = result.data;
+        }
+        if (!chosen && !pending) chosen = sessions.find(session => session.status === 'active') || sessions[0];
+        if (chosen && !cancelled) showSession(chosen);
+      } catch (e) {
+        if (!cancelled) setError(getErrorMessage(e, 'Ошибка восстановления сессий'));
+      } finally {
+        if (!cancelled) setRestoring(false);
+      }
     };
-  }, [activeSession, apiUrl, token]);
+    restore();
+    return () => { cancelled = true; };
+  }, [apiUrl, token, trainerId, showSession]);
+
+  useEffect(() => {
+    if (!activeSession) return;
+    let cancelled = false;
+    let fetching = false;
+    const fetchCheckIns = async () => {
+      if (fetching) return;
+      fetching = true;
+      try {
+        const headers = { Authorization: `Bearer ${token || localStorage.getItem('coach_token')}` };
+        const state = await fetch(`${apiUrl}/api/sessions/${activeSession.id}`, { headers });
+        const current = await state.json(); if (!state.ok) throw new Error(current.error || current.detail || 'Ошибка обновления');
+        if (cancelled) return;
+        if (current.data.status !== 'active') { showSession(current.data); return; }
+        const res = await fetch(`${apiUrl}/api/checkin/sessions/${activeSession.id}`, { headers });
+        const data = await res.json(); if (!res.ok) throw new Error(data.error || data.detail || 'Ошибка загрузки ответов');
+        if (cancelled) return;
+        setLiveCheckIns(data.data || []);
+        const summaryRes = await fetch(`${apiUrl}/api/sessions/${activeSession.id}/summary`, { headers });
+        const summaryData = await summaryRes.json(); if (!summaryRes.ok) throw new Error(summaryData.error || summaryData.detail || 'Ошибка загрузки сводки');
+        if (!cancelled) setGroupSummary(summaryData.data);
+      } catch (e) {
+        if (!cancelled) setError(getErrorMessage(e, 'Ошибка обновления'));
+      } finally { fetching = false; }
+    };
+    fetchCheckIns();
+    const intervalId = setInterval(fetchCheckIns, 5000);
+    return () => { cancelled = true; clearInterval(intervalId); };
+  }, [activeSession, apiUrl, token, showSession]);
 
   const loadOptional = async (kind: 'candidates' | 'demo-summary') => {
     setError('');
@@ -105,32 +162,41 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
   };
 
   const handleCreateSession = async () => {
+    if (loading || restoring) return;
     setLoading(true);
     setError('');
     try {
-      const authToken = token || localStorage.getItem('coach_token');
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
-      }
-
+      const pending = readPendingCreation(trainerId) || {
+        request_id: crypto.randomUUID(),
+        athlete_count: athleteCount,
+        extended_athlete_ids: selectedCodes.split(/[\s,;]+/).filter(Boolean).map(code => code.toUpperCase()),
+      };
+      persistCreation(trainerId, pending);
+      setPendingCreation(pending);
+      const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token || localStorage.getItem('coach_token')}` };
       const res = await fetch(`${apiUrl}/api/sessions`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ trainer_id: trainerId, athlete_count: athleteCount, extended_athlete_ids: selectedCodes.split(/[\s,;]+/).filter(Boolean) }),
+        method: 'POST', headers, body: JSON.stringify({ trainer_id: trainerId, ...pending }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to create session');
-      setActiveSession(data.data);
+      if (!res.ok) {
+        if (res.status === 400 || res.status === 422) { clearPendingCreation(trainerId); setPendingCreation(null); }
+        throw new Error(data.error || data.detail || 'Не удалось создать сессию');
+      }
+      navigate(`/dashboard?session_id=${encodeURIComponent(data.data.id)}`, { replace: true });
+      clearPendingCreation(trainerId);
+      setPendingCreation(null);
       setSelectedCodes('');
-      setGroupSummary(null);
-      setSummary(null);
-      setLiveCheckIns([]);
+      let session: ActiveSession = data.data;
+      if (session.status !== 'active') {
+        const detail = await fetch(`${apiUrl}/api/sessions/${session.id}`, { headers });
+        const result = await detail.json(); if (!detail.ok) throw new Error(result.error || result.detail || 'Ошибка загрузки итогов');
+        session = result.data;
+        showSession(session);
+      } else showSession(session);
+      setHistory(previous => [session, ...previous.filter(item => item.id !== session.id)]);
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'Failed to create session'));
-    } finally {
-      setLoading(false);
-    }
+      setError(getErrorMessage(err, 'Не удалось создать сессию. Повторите запрос.'));
+    } finally { setLoading(false); }
   };
 
   const handleCloseSession = async () => {
@@ -153,6 +219,8 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
       
       setSummary(data.data.aggregated_response);
       setActiveSession(null);
+      const closed = { ...activeSession, status: 'closed', aggregated_response: data.data.aggregated_response };
+      setHistory(previous => previous.map(session => session.id === closed.id ? closed : session));
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Failed to close session'));
     } finally {
@@ -174,6 +242,14 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        {restoring && <p>Восстановление сессий…</p>}
+        {history.length > 0 && <label className="block mb-4">Тренировочные сессии:
+          <select className="ds-input p-3" disabled={restoring || loading} value={displayedSessionId} onChange={e => { const chosen = history.find(session => session.id === e.target.value); if (chosen) showSession(chosen); }}>
+            <option value="">Выберите сессию</option>
+            {history.map(session => <option key={session.id} value={session.id}>{new Date(session.created_at).toLocaleString('ru')} — {session.status === 'active' ? 'активна' : 'завершена'}</option>)}
+          </select>
+        </label>}
+        {pendingCreation && <div role="status"><p>Создание сессии ещё не подтверждено. Повторите тот же запрос — новая копия не появится.</p><button className="ds-ghost p-3" disabled={loading || restoring} onClick={handleCreateSession}>Восстановить создание</button></div>}
         <button className="ds-ghost p-3 mb-4" onClick={() => loadOptional('demo-summary')}>Демо: показать сводку</button>
         {demoSummary && <div className="ds-card p-6 mb-6"><h2 className="text-2xl">Демо — вымышленные данные</h2>{demoSummary.facts.map((fact, i) => <p key={i}>{fact}</p>)}<p>{demoSummary.disclaimer}</p><button className="ds-ghost p-3" onClick={() => setDemoSummary(null)}>Закрыть демо</button></div>}
         {error && (
@@ -182,7 +258,7 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
           </div>
         )}
 
-        {!activeSession && !summary && (
+        {!restoring && !activeSession && !summary && (
           <div className="ds-card ds-mobile-card p-8 text-center max-w-lg mx-auto mt-12">
             <h2 className="text-2xl font-display text-chalk mb-4">Начать тренировку</h2>
             <p className="text-chalk-dim mb-6">
@@ -193,6 +269,7 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
               <label className="block text-chalk-dim text-sm mb-2">Ожидаемое количество участников:</label>
               <input
                 type="number"
+                disabled={!!pendingCreation || loading}
                 min="1"
                 max="50"
                 value={athleteCount}
@@ -202,16 +279,16 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
             </div>
 
             <button className="ds-ghost p-3 mb-3" onClick={() => loadOptional('candidates')}>Подсказка выбора по истории измерений</button>
-            {candidates.length > 0 && <div className="text-left mb-4"><p>Сначала без измерений, затем наиболее давние. Выбор остаётся за вами.</p>{candidates.map(c => <label key={c.code} className="block"><input type="checkbox" checked={selectedCodes.split(/[\s,;]+/).includes(c.code)} onChange={e => { const codes = selectedCodes.split(/[\s,;]+/).filter(Boolean); setSelectedCodes((e.target.checked ? [...new Set([...codes, c.code])] : codes.filter(x => x !== c.code)).join(', ')); }} /> {c.code} — {c.last_measurement ? new Date(c.last_measurement).toLocaleDateString('ru') : 'нет измерений'}</label>)}</div>}
+            {candidates.length > 0 && <div className="text-left mb-4"><p>Сначала без измерений, затем наиболее давние. Выбор остаётся за вами.</p>{candidates.map(c => <label key={c.code} className="block"><input type="checkbox" disabled={!!pendingCreation || loading} checked={selectedCodes.split(/[\s,;]+/).includes(c.code)} onChange={e => { const codes = selectedCodes.split(/[\s,;]+/).filter(Boolean); setSelectedCodes((e.target.checked ? [...new Set([...codes, c.code])] : codes.filter(x => x !== c.code)).join(', ')); }} /> {c.code} — {c.last_measurement ? new Date(c.last_measurement).toLocaleDateString('ru') : 'нет измерений'}</label>)}</div>}
             <label className="block text-left mb-6">Коды участников расширенного режима (через пробел или запятую):
-              <textarea className="ds-input p-3" value={selectedCodes} onChange={e => setSelectedCodes(e.target.value)} placeholder="A001, A003" />
+              <textarea className="ds-input p-3" disabled={!!pendingCreation || loading} value={selectedCodes} onChange={e => setSelectedCodes(e.target.value)} placeholder="A001, A003" />
             </label>
             <button
               onClick={handleCreateSession}
               disabled={loading}
               className="ds-primary py-4 px-8 w-full"
             >
-              {loading ? 'Создание...' : 'Сгенерировать QR-код'}
+              {loading ? 'Создание...' : pendingCreation ? 'Повторить создание' : 'Сгенерировать QR-код'}
             </button>
           </div>
         )}
@@ -317,6 +394,8 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
               onClick={() => {
                 setSummary(null);
                 setActiveSession(null);
+                setDisplayedSessionId('');
+                navigate('/dashboard', { replace: true });
               }}
               className="ds-primary py-4 px-8 w-full md:w-auto"
             >

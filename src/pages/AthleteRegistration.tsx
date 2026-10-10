@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../api/baseUrl';
 import { getErrorMessage } from '../api/errors';
+import { registrationSecret } from '../api/recovery';
 
 export const AthleteRegistration: React.FC = () => {
   const [athleteCode, setAthleteCode] = useState('');
@@ -30,6 +31,7 @@ export const AthleteRegistration: React.FC = () => {
     setError('');
 
     try {
+      const proof = await registrationSecret(sessionId, athleteCode);
       const response = await fetch(`${API_BASE_URL}/api/athletes/register`, {
         method: 'POST',
         headers: {
@@ -38,6 +40,7 @@ export const AthleteRegistration: React.FC = () => {
         body: JSON.stringify({
           athlete_code: athleteCode.trim().toUpperCase(),
           session_id: sessionId,
+          registration_secret: proof,
           device_token: localStorage.getItem(`device_token:${sessionId}`),
         }),
       });

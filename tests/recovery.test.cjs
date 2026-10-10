@@ -38,7 +38,7 @@ test('registration refuses to proceed if the proof cannot be persisted', async (
 
 test('an unconfirmed creation survives reload with its original request and participant list', () => {
   const storage = new Storage();
-  const request = { request_id: crypto.randomUUID(), athlete_count: 3, extended_athlete_ids: ['LOCAL-A', 'LOCAL-B'] };
+  const request = { request_id: crypto.randomUUID(), athlete_count: 3, extended_athlete_ids: ['LOCAL-A', 'LOCAL-B'], extended_participant_ids: ['public-participant-id'] };
   persistCreation('trainer-one', request, storage);
   const reloaded = new Storage(storage.values);
   assert.deepEqual(readPendingCreation('trainer-one', reloaded), request);

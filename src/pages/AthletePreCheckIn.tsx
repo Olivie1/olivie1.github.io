@@ -1,5 +1,5 @@
 import ExtendedCheckIn from '../components/ExtendedCheckIn';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../api/baseUrl';
 import { getErrorMessage } from '../api/errors';
@@ -18,8 +18,16 @@ export const AthletePreCheckIn: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const handleNext = () => setStep((s) => s + 1);
-  const handlePrev = () => setStep((s) => s - 1);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelAdvance = () => {
+    if (advanceTimer.current !== null) clearTimeout(advanceTimer.current);
+    advanceTimer.current = null;
+  };
+  useEffect(() => cancelAdvance, []);
+  const handlePrev = () => {
+    cancelAdvance();
+    setStep((s) => Math.max(1, s - 1));
+  };
 
   const handleSubmit = async () => {
     const deviceToken = localStorage.getItem(`device_token:${sessionId}`) || localStorage.getItem('device_token');
@@ -79,7 +87,12 @@ export const AthletePreCheckIn: React.FC = () => {
             key={val}
             onClick={() => {
               setValue(val);
-              setTimeout(handleNext, 300);
+              cancelAdvance();
+              const answeredStep = step;
+              advanceTimer.current = setTimeout(() => {
+                advanceTimer.current = null;
+                setStep((current) => current === answeredStep ? Math.min(4, current + 1) : current);
+              }, 300);
             }}
             className={`ds-scale flex items-center justify-center
               ${currentValue === val

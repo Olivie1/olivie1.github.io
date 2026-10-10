@@ -14,7 +14,7 @@ interface ActiveSession {
 
 interface CheckInResponse {
   id: string;
-  athlete_id: string;
+  participant_id: string;
   pre_check_in?: {
     sleep: number;
     fatigue: number;
@@ -56,9 +56,10 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
   const [pendingCreation, setPendingCreation] = useState<PendingSessionCreation | null>(null);
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
-  const [candidates, setCandidates] = useState<{ code: string; last_measurement: string | null }[]>([]);
+  const [candidates, setCandidates] = useState<{ participant_id: string; last_measurement: string | null }[]>([]);
   const [demoSummary, setDemoSummary] = useState<{ facts: string[]; disclaimer: string } | null>(null);
   const [selectedCodes, setSelectedCodes] = useState('');
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [groupSummary, setGroupSummary] = useState<{ facts: string[]; disclaimer: string } | null>(null);
   const [athleteCount, setAthleteCount] = useState<number>(15);
   
@@ -97,6 +98,7 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
         if (pending) {
           setAthleteCount(pending.athlete_count);
           setSelectedCodes(pending.extended_athlete_ids.join(', '));
+          setSelectedParticipants(pending.extended_participant_ids || []);
         }
         const headers = { Authorization: `Bearer ${token || localStorage.getItem('coach_token')}` };
         const r = await fetch(`${apiUrl}/api/sessions?limit=50`, { headers });
@@ -170,6 +172,7 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
         request_id: crypto.randomUUID(),
         athlete_count: athleteCount,
         extended_athlete_ids: selectedCodes.split(/[\s,;]+/).filter(Boolean).map(code => code.toUpperCase()),
+        extended_participant_ids: selectedParticipants,
       };
       persistCreation(trainerId, pending);
       setPendingCreation(pending);
@@ -186,6 +189,7 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
       clearPendingCreation(trainerId);
       setPendingCreation(null);
       setSelectedCodes('');
+      setSelectedParticipants([]);
       let session: ActiveSession = data.data;
       if (session.status !== 'active') {
         const detail = await fetch(`${apiUrl}/api/sessions/${session.id}`, { headers });
@@ -279,9 +283,9 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
             </div>
 
             <button className="ds-ghost p-3 mb-3" onClick={() => loadOptional('candidates')}>Подсказка выбора по истории измерений</button>
-            {candidates.length > 0 && <div className="text-left mb-4"><p>Сначала без измерений, затем наиболее давние. Выбор остаётся за вами.</p>{candidates.map(c => <label key={c.code} className="block"><input type="checkbox" disabled={!!pendingCreation || loading} checked={selectedCodes.split(/[\s,;]+/).includes(c.code)} onChange={e => { const codes = selectedCodes.split(/[\s,;]+/).filter(Boolean); setSelectedCodes((e.target.checked ? [...new Set([...codes, c.code])] : codes.filter(x => x !== c.code)).join(', ')); }} /> {c.code} — {c.last_measurement ? new Date(c.last_measurement).toLocaleDateString('ru') : 'нет измерений'}</label>)}</div>}
-            <label className="block text-left mb-6">Коды участников расширенного режима (через пробел или запятую):
-              <textarea className="ds-input p-3" disabled={!!pendingCreation || loading} value={selectedCodes} onChange={e => setSelectedCodes(e.target.value)} placeholder="A001, A003" />
+            {candidates.length > 0 && <div className="text-left mb-4"><p>Сначала без измерений, затем наиболее давние. Выбор остаётся за вами.</p>{candidates.map(c => <label key={c.participant_id} className="block"><input type="checkbox" disabled={!!pendingCreation || loading} checked={selectedParticipants.includes(c.participant_id)} onChange={e => setSelectedParticipants(previous => e.target.checked ? [...new Set([...previous, c.participant_id])] : previous.filter(id => id !== c.participant_id))} /> Участник {c.participant_id.slice(0, 12)} — {c.last_measurement ? new Date(c.last_measurement).toLocaleDateString('ru') : 'нет измерений'}</label>)}</div>}
+            <label className="block text-left mb-6">Секретные коды новых участников расширенного режима (через пробел или запятую):
+              <input id="extendedCodes" type="password" autoComplete="off" className="ds-input p-3" disabled={!!pendingCreation || loading} value={selectedCodes} onChange={e => setSelectedCodes(e.target.value)} />
             </label>
             <button
               onClick={handleCreateSession}
@@ -330,7 +334,7 @@ export default function CoachDashboard({ token }: CoachDashboardProps) {
                   ) : (
                     liveCheckIns.map(checkIn => (
                       <div key={checkIn.id} className="ds-metric p-4 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-                        <div className="font-semibold text-chalk">{checkIn.athlete_id}</div>
+                        <div className="font-semibold text-chalk">Участник {checkIn.participant_id?.slice(0, 12) || checkIn.id.slice(0, 12)}</div>
                         <div className="flex flex-wrap gap-x-4 gap-y-2">
                           {checkIn.pre_check_in ? (
                             <>

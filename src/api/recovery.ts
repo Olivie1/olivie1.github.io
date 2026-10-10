@@ -3,6 +3,7 @@ export interface PendingSessionCreation {
   request_id: string;
   athlete_count: number;
   extended_athlete_ids: string[];
+  extended_participant_ids?: string[];
 }
 
 const pendingKey = (trainerId: string) => `coach-pending-session:${trainerId}`;
@@ -13,6 +14,7 @@ export function readPendingCreation(trainerId: string, storage: Storage = localS
   try {
     const value = JSON.parse(raw) as PendingSessionCreation;
     if (typeof value.request_id !== 'string' || value.request_id.length < 16 || !Number.isInteger(value.athlete_count) || value.athlete_count <= 0 || !Array.isArray(value.extended_athlete_ids) || !value.extended_athlete_ids.every(code => typeof code === 'string')) throw new Error('Invalid saved creation');
+    if (value.extended_participant_ids !== undefined && (!Array.isArray(value.extended_participant_ids) || !value.extended_participant_ids.every(id => typeof id === 'string'))) throw new Error('Invalid saved participants');
     return value;
   } catch {
     storage.removeItem(pendingKey(trainerId));
